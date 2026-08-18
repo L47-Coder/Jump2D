@@ -60,7 +60,7 @@ public class CornBullet : MonoBehaviour
 
     private void Explode()
     {
-        CameraManager.Instance?.Shake(0.2f, 0.2f);
+        CameraManager.Instance?.Shake(0.12f, 0.08f);
         var hits = Physics2D.OverlapCircleAll(transform.position, ExplosionRadius);
         foreach (var hit in hits)
         {

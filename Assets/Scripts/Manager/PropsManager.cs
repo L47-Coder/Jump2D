@@ -1,10 +1,10 @@
 using UnityEngine;
 
-// 随进度在场景前方固定高空生成武器道具，需要玩家跳跃拾取
+// 随进度在场景前方生成武器道具，需要玩家跳跃拾取
 public class PropsManager : MonoBehaviour
 {
     public GameObject PropsPrefab;
-    public float SpawnY = 2.6f;
+    public float SpawnY = 1.2f;
     public float MinInterval = 8f;
     public float MaxInterval = 14f;
     public float DifficultyRampDuration = 90f;

@@ -241,13 +241,11 @@ MonoBehaviour:
   MapManager: {fileID: 354557327}
   EnemyConfigs:
   - Prefab: {fileID: 7648483881525841815, guid: ac8ed5ede7198a14f81d6ffe72dc8112, type: 3}
-    SpawnY: 1.2
   - Prefab: {fileID: 2504517725312571520, guid: be54baeb0297d964292b36d58bb456b2, type: 3}
-    SpawnY: -1.8
-  GenerateInterval: 2
-  MinGenerateInterval: 0.8
+  GenerateInterval: 1.4
+  MinGenerateInterval: 0.55
   DifficultyRampDuration: 90
-  BatchSpacing: 1.6
+  BatchSpacing: 1.35
 --- !u!114 &354557332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273,7 +271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PropsPrefab: {fileID: 4692500807379441774, guid: a5c1ed7f9112ee34d9674b56a16d3c00, type: 3}
-  SpawnY: 2.6
+  SpawnY: 1.2
   MinInterval: 8
   MaxInterval: 14
   DifficultyRampDuration: 90

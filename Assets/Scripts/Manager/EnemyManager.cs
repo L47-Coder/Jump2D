@@ -5,17 +5,16 @@ using UnityEngine;
 public class EnemySpawnConfig
 {
     public GameObject Prefab;
-    public float SpawnY;
 }
 
 public class EnemyManager : MonoBehaviour
 {
     public MapManager MapManager;
     public List<EnemySpawnConfig> EnemyConfigs;
-    public float GenerateInterval = 2f;
-    public float MinGenerateInterval = 0.8f;
+    public float GenerateInterval = 1.4f;
+    public float MinGenerateInterval = 0.55f;
     public float DifficultyRampDuration = 90f;
-    public float BatchSpacing = 1.6f;
+    public float BatchSpacing = 1.35f;
     private float _lastGenerateTime = 0f;
     private float _elapsed = 0f;
     private bool _isValid;
@@ -50,7 +49,7 @@ public class EnemyManager : MonoBehaviour
 
     private void GenerateEnemyBatch()
     {
-        //随难度推进，单次生成的敌人数量上限逐步提高
+        // 随难度推进，单次生成的敌人数量上限逐步提高，保证开局也有连续目标。
         var camera = Camera.main;
         if (camera == null)
             return;
@@ -60,15 +59,15 @@ public class EnemyManager : MonoBehaviour
             return;
 
         float difficultyT = Mathf.Clamp01(_elapsed / Mathf.Max(0.01f, DifficultyRampDuration));
-        int maxBatch = 1 + Mathf.FloorToInt(difficultyT * 2f);
-        int count = Random.Range(1, maxBatch + 1);
+        int maxBatch = 2 + Mathf.FloorToInt(difficultyT * 3f);
+        int count = Random.Range(2, maxBatch + 1);
 
         float baseX = camera.transform.position.x + 10f;
         for (int i = 0; i < count; i++)
         {
-            //每次独立随机怪物种类，各自使用固定的生成高度（如飞行怪在天上、地面怪在地面）
+            // 高度由预制体内部的 BodyRoot/Shadow 本地位置决定，所有敌人统一从 y=0 生成。
             EnemySpawnConfig config = validConfigs[Random.Range(0, validConfigs.Count)];
-            Vector3 spawnPosition = new Vector3(baseX + i * BatchSpacing, config.SpawnY, 0);
+            Vector3 spawnPosition = new Vector3(baseX + i * BatchSpacing, 0f, 0f);
             Instantiate(config.Prefab, spawnPosition, Quaternion.identity);
         }
     }

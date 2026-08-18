@@ -252,6 +252,12 @@ MonoBehaviour:
   DefaultMouthSprite: {fileID: 21300000, guid: fd47523673851174288aa5fb8536845d, type: 3}
   MachineGunMouthSprite: {fileID: 21300000, guid: 0e58d34f5bb9a454b93c37ef6079c9b3, type: 3}
   CornMouthSprite: {fileID: 21300000, guid: 5dd30180cdbe15b47983484822258e11, type: 3}
+  AutoHopInterval: 1.15
+  AutoHopImpulse: 2.8
+  MouthKickDuration: 0.1
+  MouthKickScale: 1.2
+  MouthKickVerticalScale: 0.86
+  MouthKickForward: 0.06
 --- !u!1 &6576241853826776950
 GameObject:
   m_ObjectHideFlags: 0

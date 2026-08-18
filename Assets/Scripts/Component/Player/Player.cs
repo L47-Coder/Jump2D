@@ -15,13 +15,23 @@ public class Player : MonoBehaviour
     public Sprite DefaultMouthSprite;
     public Sprite MachineGunMouthSprite;
     public Sprite CornMouthSprite;
+    public float AutoHopInterval = 1.15f;
+    public float AutoHopImpulse = 2.8f;
+    public float MouthKickDuration = 0.1f;
+    public float MouthKickScale = 1.2f;
+    public float MouthKickVerticalScale = 0.86f;
+    public float MouthKickForward = 0.06f;
     private bool _isvalid = false;
     private GameObject _targetPosObj;
     private int _hasJumpCount = 2;
     private float _shootTimer;
+    private float _autoHopTimer;
     private WeaponType _weaponType = WeaponType.Pea;
     private Coroutine _weaponRoutine;
+    private Coroutine _mouthRoutine;
     private Vector3 _bodyRestScale;
+    private Vector3 _mouthRestScale;
+    private Vector3 _mouthRestPosition;
     private const float FollowSpeed = 5f;
     private const float JumpImpulse = 7f;
     private const float RisingVelocityThreshold = 3f;
@@ -52,6 +62,11 @@ public class Player : MonoBehaviour
         }
 
         _bodyRestScale = BodyRoot.transform.localScale;
+        if (MouthSprite != null)
+        {
+            _mouthRestScale = MouthSprite.transform.localScale;
+            _mouthRestPosition = MouthSprite.transform.localPosition;
+        }
         UpdateMouthSprite();
         _isvalid = true;
     }
@@ -70,6 +85,9 @@ public class Player : MonoBehaviour
             Debug.LogWarning("Player target position is not assigned; using the current position.", this);
             _targetPosObj = gameObject;
         }
+
+        // 自动小跳让角色持续有“蹦跳前进”的节奏，而不是贴着地面滑行。
+        _autoHopTimer = Mathf.Clamp(AutoHopInterval * 0.6f, 0f, Mathf.Max(0f, AutoHopInterval));
     }
 
     void Update()
@@ -81,6 +99,7 @@ public class Player : MonoBehaviour
         transform.position = Vector3.Lerp(transform.position, targetPos, FollowSpeed * Time.deltaTime);
 
         TryJump();
+        TryAutoHop();
         TryShoot();
 
         //下落时自己的重力增加
@@ -137,6 +156,7 @@ public class Player : MonoBehaviour
     {
         bool wasAirborne = _hasJumpCount < 2;
         _hasJumpCount = 2;
+        _autoHopTimer = 0f;
         if (wasAirborne && BodyRoot != null)
             Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 1.08f, 0.16f);
     }
@@ -151,9 +171,32 @@ public class Player : MonoBehaviour
             Rigidbody2D.velocity = new Vector2(Rigidbody2D.velocity.x, 0);
             Rigidbody2D.AddForce(Vector2.up * JumpImpulse, ForceMode2D.Impulse);
             _hasJumpCount--;
+            _autoHopTimer = 0f;
             if (BodyRoot != null)
                 Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 0.92f, 0.12f);
         }
+    }
+
+    private void TryAutoHop()
+    {
+        float interval = Mathf.Max(0.1f, AutoHopInterval);
+        if (_hasJumpCount < 2 || Rigidbody2D.velocity.y > 0.05f)
+        {
+            _autoHopTimer = 0f;
+            return;
+        }
+
+        _autoHopTimer += Time.deltaTime;
+        if (_autoHopTimer < interval || AutoHopImpulse <= 0f)
+            return;
+
+        _autoHopTimer = 0f;
+        Rigidbody2D.velocity = new Vector2(Rigidbody2D.velocity.x, 0f);
+        Rigidbody2D.AddForce(Vector2.up * AutoHopImpulse, ForceMode2D.Impulse);
+        _hasJumpCount = 1;
+
+        if (BodyRoot != null)
+            Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 0.95f, 0.12f);
     }
 
     private bool IsJumpPressedThisFrame()
@@ -219,6 +262,43 @@ public class Player : MonoBehaviour
         _shootTimer = 0f;
         Vector3 spawnPosition = MouthSprite != null ? MouthSprite.transform.position : transform.position;
         Instantiate(prefab, spawnPosition, Quaternion.identity);
+        TriggerMouthKick();
+    }
+
+    private void TriggerMouthKick()
+    {
+        if (MouthSprite == null)
+            return;
+
+        if (_mouthRoutine != null)
+            StopCoroutine(_mouthRoutine);
+        _mouthRoutine = StartCoroutine(MouthKickRoutine());
+    }
+
+    private IEnumerator MouthKickRoutine()
+    {
+        float duration = Mathf.Max(0.01f, MouthKickDuration);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float kick = Mathf.Sin(t * Mathf.PI);
+
+            Vector3 scale = _mouthRestScale;
+            scale.x *= Mathf.Lerp(1f, Mathf.Max(1f, MouthKickScale), kick);
+            scale.y *= Mathf.Lerp(1f, Mathf.Clamp(MouthKickVerticalScale, 0.5f, 1f), kick);
+            MouthSprite.transform.localScale = scale;
+
+            Vector3 position = _mouthRestPosition;
+            position.x += MouthKickForward * kick;
+            MouthSprite.transform.localPosition = position;
+            yield return null;
+        }
+
+        MouthSprite.transform.localScale = _mouthRestScale;
+        MouthSprite.transform.localPosition = _mouthRestPosition;
+        _mouthRoutine = null;
     }
 
     void OnDisable()
@@ -227,6 +307,18 @@ public class Player : MonoBehaviour
         {
             StopCoroutine(_weaponRoutine);
             _weaponRoutine = null;
+        }
+
+        if (_mouthRoutine != null)
+        {
+            StopCoroutine(_mouthRoutine);
+            _mouthRoutine = null;
+        }
+
+        if (MouthSprite != null)
+        {
+            MouthSprite.transform.localScale = _mouthRestScale;
+            MouthSprite.transform.localPosition = _mouthRestPosition;
         }
     }
 }
