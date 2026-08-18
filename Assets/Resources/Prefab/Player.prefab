@@ -243,18 +243,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BodyRoot: {fileID: 4306755797684521442}
   Rigidbody2D: {fileID: 7657258778379190036}
-  ShootSpeed: 1
+  PeaFireRate: 1
   BulletPrefab: {fileID: 100001, guid: 9c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f, type: 3}
   CornBulletPrefab: {fileID: 100101, guid: d2e3f4a5b6c7d8e9f0a1b2c3d4e5f607, type: 3}
-  MachineGunFireRateMultiplier: 4
-  CornFireInterval: 0.35
+  MachineGunFireRate: 9
+  CornFireRate: 1.5
   FollowSpeed: 5
-  JumpImpulse: 7
+  JumpImpulse: 6.8
   MaxJumpCount: 2
   RisingVelocityThreshold: 3
   RisingGravityScale: 1
   FallingGravityScale: 5
   FallingVelocityThreshold: -0.1
+  StompBounceImpulse: 4
+  Shadow: {fileID: 0}
   MouthSprite: {fileID: 9222920812648686075}
   DefaultMouthSprite: {fileID: 21300000, guid: fd47523673851174288aa5fb8536845d, type: 3}
   MachineGunMouthSprite: {fileID: 21300000, guid: 0e58d34f5bb9a454b93c37ef6079c9b3, type: 3}

@@ -1,16 +1,20 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
 {
     public GameObject BodyRoot;
     public Rigidbody2D Rigidbody2D;
-    public float ShootSpeed;
+    [FormerlySerializedAs("ShootSpeed")]
+    public float PeaFireRate = 2f;
     public GameObject BulletPrefab;
     public GameObject CornBulletPrefab;
-    public float MachineGunFireRateMultiplier = 4f;
-    public float CornFireInterval = 0.35f;
+    [FormerlySerializedAs("MachineGunFireRateMultiplier")]
+    public float MachineGunFireRate = 6f;
+    [FormerlySerializedAs("CornFireInterval")]
+    public float CornFireRate = 2f;
     public float FollowSpeed = 5f;
     public float JumpImpulse = 7f;
     public int MaxJumpCount = 2;
@@ -18,6 +22,8 @@ public class Player : MonoBehaviour
     public float RisingGravityScale = 1f;
     public float FallingGravityScale = 5f;
     public float FallingVelocityThreshold = -0.1f;
+    public float StompBounceImpulse = 4f;
+    public Transform Shadow;
     public SpriteRenderer MouthSprite;
     public Sprite DefaultMouthSprite;
     public Sprite MachineGunMouthSprite;
@@ -34,6 +40,7 @@ public class Player : MonoBehaviour
     private GameObject _targetPosObj;
     private int _hasJumpCount = 2;
     private bool _isGrounded = true;
+    private bool _wasDescending;
     private float _shootTimer;
     private float _idleHopTime;
     private float _idleVisualOffset;
@@ -43,14 +50,34 @@ public class Player : MonoBehaviour
     private Coroutine _mouthRoutine;
     private Transform _bodySprite;
     private Vector3 _bodyRestPosition;
+    private Vector3 _shadowRestPosition;
     private Vector3 _mouthRestScale;
     private Vector3 _mouthRestPosition;
-    public bool IsFalling => _isvalid && !_isGrounded && Rigidbody2D != null && Rigidbody2D.velocity.y < FallingVelocityThreshold;
+    public bool IsFalling => _isvalid && !_isGrounded && Rigidbody2D != null &&
+        (_wasDescending || Rigidbody2D.velocity.y < FallingVelocityThreshold);
+
+    public void ApplyStompBounce()
+    {
+        if (!_isvalid || Rigidbody2D == null)
+            return;
+
+        Rigidbody2D.velocity = Vector2.zero;
+        _isGrounded = false;
+        _wasDescending = false;
+        _idleHopTime = 0f;
+        SetIdleVisualOffset(0f);
+        AlignBodyHorizontally();
+        if (StompBounceImpulse > 0f)
+            Rigidbody2D.AddForce(Vector2.up * StompBounceImpulse, ForceMode2D.Impulse);
+    }
 
     void Awake()
     {
         if (BodyRoot == null)
             BodyRoot = transform.Find("BodyRoot")?.gameObject;
+
+        if (Shadow == null)
+            Shadow = transform.Find("Shadow");
 
         if (Rigidbody2D == null)
             Rigidbody2D = BodyRoot != null
@@ -74,6 +101,8 @@ public class Player : MonoBehaviour
         _bodySprite = BodyRoot.transform.Find("BodySprite");
         if (_bodySprite != null)
             _bodyRestPosition = _bodySprite.localPosition;
+        if (Shadow != null)
+            _shadowRestPosition = Shadow.localPosition;
         if (MouthSprite != null)
         {
             _mouthRestScale = MouthSprite.transform.localScale;
@@ -120,6 +149,54 @@ public class Player : MonoBehaviour
             Rigidbody2D.gravityScale = FallingGravityScale;
         else
             Rigidbody2D.gravityScale = RisingGravityScale;
+    }
+
+    void FixedUpdate()
+    {
+        if (!_isvalid || Rigidbody2D == null)
+        {
+            _wasDescending = false;
+            return;
+        }
+
+        // 记录物理步开始前的下降状态，避免碰撞求解把当前速度清零后误判为非下落。
+        _wasDescending = !_isGrounded && Rigidbody2D.velocity.y < FallingVelocityThreshold;
+    }
+
+    private void LateUpdate()
+    {
+        if (!_isvalid || Rigidbody2D == null)
+            return;
+
+        // BodyRoot 是动态刚体，可能被敌人的实体碰撞横向挤开；玩家没有横向物理输入，
+        // 因此每帧将它拉回 Player 根节点的横向锚点，避免偏移永久残留。
+        AlignBodyHorizontally();
+        SyncShadowHorizontalPosition();
+    }
+
+    public void AlignBodyHorizontally()
+    {
+        if (Rigidbody2D == null)
+            return;
+
+        Vector2 position = Rigidbody2D.position;
+        position.x = transform.position.x;
+        Rigidbody2D.position = position;
+
+        Vector2 velocity = Rigidbody2D.velocity;
+        velocity.x = 0f;
+        Rigidbody2D.velocity = velocity;
+    }
+
+    private void SyncShadowHorizontalPosition()
+    {
+        if (Shadow == null || Rigidbody2D == null)
+            return;
+
+        Vector3 bodyLocalPosition = transform.InverseTransformPoint(Rigidbody2D.position);
+        Vector3 shadowPosition = _shadowRestPosition;
+        shadowPosition.x = bodyLocalPosition.x;
+        Shadow.localPosition = shadowPosition;
     }
 
     public void SetTargetPosObj(GameObject target) => _targetPosObj = target;
@@ -169,6 +246,7 @@ public class Player : MonoBehaviour
     {
         _hasJumpCount = 2;
         _isGrounded = true;
+        _wasDescending = false;
         // 落地后从 0 相位重新开始，下一帧立即进入上升段。
         _idleHopTime = 0f;
         SetIdleVisualOffset(0f);
@@ -185,6 +263,7 @@ public class Player : MonoBehaviour
             Rigidbody2D.AddForce(Vector2.up * JumpImpulse, ForceMode2D.Impulse);
             _hasJumpCount--;
             _isGrounded = false;
+            _wasDescending = false;
             _idleHopTime = 0f;
             SetIdleVisualOffset(0f);
         }
@@ -271,15 +350,15 @@ public class Player : MonoBehaviour
         {
             case WeaponType.MachineGun:
                 prefab = BulletPrefab;
-                rate = ShootSpeed * MachineGunFireRateMultiplier;
+                rate = MachineGunFireRate;
                 break;
             case WeaponType.Corn:
                 prefab = CornBulletPrefab;
-                rate = CornFireInterval > 0f ? 1f / CornFireInterval : 0f;
+                rate = CornFireRate;
                 break;
             default:
                 prefab = BulletPrefab;
-                rate = ShootSpeed;
+                rate = PeaFireRate;
                 break;
         }
 

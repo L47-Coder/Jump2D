@@ -35,6 +35,7 @@ public class PlayerBody : MonoBehaviour
         if (Player != null && Player.IsFalling)
         {
             enemy.Squash();
+            Player.ApplyStompBounce();
             return;
         }
 
