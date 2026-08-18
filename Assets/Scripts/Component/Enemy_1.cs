@@ -24,6 +24,7 @@ public class Enemy_1 : EnemyBase
             3f,
             0.22f,
             0.72f,
-            4.5f);
+            4.5f,
+            DeathImpulse);
     }
 }

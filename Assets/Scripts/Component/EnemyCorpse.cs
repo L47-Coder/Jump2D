@@ -4,6 +4,11 @@ using UnityEngine;
 // 独立的物理尸体：不带 Enemy 标签，不会继续触发伤害或被子弹锁定。
 public class EnemyCorpse : MonoBehaviour
 {
+    private const string CorpseLayerName = "Corpse";
+    private const string GroundLayerName = "BackGround";
+    private const float RandomImpulseMin = 0.35f;
+    private const float RandomImpulseMax = 1.05f;
+    private static bool _collisionLayerConfigured;
     private Rigidbody2D _rigidbody;
     private float _bounceFactor;
     private float _groundFriction;
@@ -18,12 +23,14 @@ public class EnemyCorpse : MonoBehaviour
         float gravityScale,
         float bounceFactor,
         float groundFriction,
-        float lifetime)
+        float lifetime,
+        Vector2 hitImpulse)
     {
         if (source == null || source.sprite == null)
             return null;
 
         var root = new GameObject(corpseName);
+        ConfigureCollisionLayer(root);
         root.transform.position = position;
         root.transform.localScale = source.transform.lossyScale;
 
@@ -36,6 +43,16 @@ public class EnemyCorpse : MonoBehaviour
         rigidbody.interpolation = RigidbodyInterpolation2D.Interpolate;
         rigidbody.velocity = initialVelocity;
         rigidbody.angularVelocity = initialAngularVelocity;
+        rigidbody.AddForce(hitImpulse, ForceMode2D.Impulse);
+
+        Vector2 randomDirection = Random.insideUnitCircle;
+        if (randomDirection.sqrMagnitude < 0.0001f)
+            randomDirection = Vector2.up;
+        else
+            randomDirection.Normalize();
+        rigidbody.AddForce(
+            randomDirection * Random.Range(RandomImpulseMin, RandomImpulseMax),
+            ForceMode2D.Impulse);
 
         var collider = root.AddComponent<BoxCollider2D>();
         Vector2 spriteSize = source.sprite.bounds.size;
@@ -61,6 +78,30 @@ public class EnemyCorpse : MonoBehaviour
         corpse._lifetime = Mathf.Max(0.1f, lifetime);
         corpse.StartCoroutine(corpse.DestroyAfterLifetime());
         return corpse;
+    }
+
+    private static void ConfigureCollisionLayer(GameObject root)
+    {
+        int corpseLayer = LayerMask.NameToLayer(CorpseLayerName);
+        int groundLayer = LayerMask.NameToLayer(GroundLayerName);
+        if (corpseLayer < 0 || groundLayer < 0)
+        {
+            Debug.LogWarning("EnemyCorpse requires Corpse and BackGround layers.");
+            return;
+        }
+
+        root.layer = corpseLayer;
+        if (_collisionLayerConfigured)
+            return;
+
+        for (int layer = 0; layer < 32; layer++)
+        {
+            if (layer != groundLayer)
+                Physics2D.IgnoreLayerCollision(corpseLayer, layer, true);
+        }
+
+        Physics2D.IgnoreLayerCollision(corpseLayer, groundLayer, false);
+        _collisionLayerConfigured = true;
     }
 
     private IEnumerator DestroyAfterLifetime()

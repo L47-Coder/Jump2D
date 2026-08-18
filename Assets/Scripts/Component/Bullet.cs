@@ -9,6 +9,7 @@ public class Bullet : MonoBehaviour
     public float Speed = 12f;
     public float LifeTime = 3f;
     public int Damage = 1;
+    public float KnockbackForce = 1.4f;
     public Action<Bullet> OnRecycle;
 
     private const float FrameInterval = 0.06f;
@@ -57,7 +58,8 @@ public class Bullet : MonoBehaviour
             return;
 
         var enemy = other.GetComponentInParent<EnemyBase>();
-        enemy?.TakeHit(Damage);
+        Vector2 direction = Speed < 0f ? Vector2.left : Vector2.right;
+        enemy?.TakeHit(Damage, direction * Mathf.Max(0f, KnockbackForce));
         Recycle();
     }
 

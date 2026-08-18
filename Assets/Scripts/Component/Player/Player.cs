@@ -15,8 +15,8 @@ public class Player : MonoBehaviour
     public Sprite DefaultMouthSprite;
     public Sprite MachineGunMouthSprite;
     public Sprite CornMouthSprite;
-    public float AutoHopInterval = 0.9f;
-    public float AutoHopImpulse = 4.2f;
+    public float IdleHopHeight = 0.1f;
+    public float IdleHopDuration = 0.38f;
     public float MouthKickDuration = 0.1f;
     public float MouthKickScale = 1.2f;
     public float MouthKickVerticalScale = 0.86f;
@@ -26,11 +26,14 @@ public class Player : MonoBehaviour
     private int _hasJumpCount = 2;
     private bool _isGrounded = true;
     private float _shootTimer;
-    private float _autoHopTimer;
+    private float _idleHopTime;
+    private float _idleVisualOffset;
+    private float _mouthKickOffsetX;
     private WeaponType _weaponType = WeaponType.Pea;
     private Coroutine _weaponRoutine;
     private Coroutine _mouthRoutine;
-    private Vector3 _bodyRestScale;
+    private Transform _bodySprite;
+    private Vector3 _bodyRestPosition;
     private Vector3 _mouthRestScale;
     private Vector3 _mouthRestPosition;
     private const float FollowSpeed = 5f;
@@ -62,7 +65,9 @@ public class Player : MonoBehaviour
             return;
         }
 
-        _bodyRestScale = BodyRoot.transform.localScale;
+        _bodySprite = BodyRoot.transform.Find("BodySprite");
+        if (_bodySprite != null)
+            _bodyRestPosition = _bodySprite.localPosition;
         if (MouthSprite != null)
         {
             _mouthRestScale = MouthSprite.transform.localScale;
@@ -87,8 +92,9 @@ public class Player : MonoBehaviour
             _targetPosObj = gameObject;
         }
 
-        // 自动小跳让角色持续有“蹦跳前进”的节奏，而不是贴着地面滑行。
-        _autoHopTimer = Mathf.Clamp(AutoHopInterval * 0.6f, 0f, Mathf.Max(0f, AutoHopInterval));
+        // 待机跳跃只移动身体贴图，不改变 Rigidbody2D，避免卡地或影响真实跳跃。
+        _idleHopTime = 0f;
+        SetIdleVisualOffset(0f);
     }
 
     void Update()
@@ -100,7 +106,7 @@ public class Player : MonoBehaviour
         transform.position = Vector3.Lerp(transform.position, targetPos, FollowSpeed * Time.deltaTime);
 
         TryJump();
-        TryAutoHop();
+        UpdateIdleHopAnimation();
         TryShoot();
 
         //下落时自己的重力增加
@@ -155,12 +161,11 @@ public class Player : MonoBehaviour
     //接触地面
     public void GroundContact()
     {
-        bool wasAirborne = _hasJumpCount < 2;
         _hasJumpCount = 2;
         _isGrounded = true;
-        _autoHopTimer = 0f;
-        if (wasAirborne && BodyRoot != null)
-            Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 1.08f, 0.16f);
+        // 落地后从 0 相位重新开始，下一帧立即进入上升段。
+        _idleHopTime = 0f;
+        SetIdleVisualOffset(0f);
     }
 
     private void TryJump()
@@ -174,30 +179,50 @@ public class Player : MonoBehaviour
             Rigidbody2D.AddForce(Vector2.up * JumpImpulse, ForceMode2D.Impulse);
             _hasJumpCount--;
             _isGrounded = false;
-            _autoHopTimer = 0f;
-            if (BodyRoot != null)
-                Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 0.92f, 0.12f);
+            _idleHopTime = 0f;
+            SetIdleVisualOffset(0f);
         }
     }
 
-    private void TryAutoHop()
+    private void UpdateIdleHopAnimation()
     {
-        float interval = Mathf.Max(0.1f, AutoHopInterval);
-        if (!_isGrounded || Rigidbody2D.velocity.y > 0.05f)
+        if (!_isGrounded)
         {
-            _autoHopTimer = 0f;
+            _idleHopTime = 0f;
+            SetIdleVisualOffset(0f);
             return;
         }
 
-        _autoHopTimer += Time.deltaTime;
-        if (_autoHopTimer < interval || AutoHopImpulse <= 0f)
-            return;
+        float duration = Mathf.Max(0.05f, IdleHopDuration);
+        _idleHopTime += Time.deltaTime;
+        float phase = Mathf.Clamp01(_idleHopTime / duration);
+        SetIdleVisualOffset(Mathf.Sin(phase * Mathf.PI) * Mathf.Max(0f, IdleHopHeight));
+        if (_idleHopTime >= duration)
+            _idleHopTime = 0f;
+    }
 
-        _autoHopTimer = 0f;
-        Rigidbody2D.velocity = new Vector2(Rigidbody2D.velocity.x, 0f);
-        Rigidbody2D.AddForce(Vector2.up * AutoHopImpulse, ForceMode2D.Impulse);
-        _hasJumpCount = 1;
-        _isGrounded = false;
+    private void SetIdleVisualOffset(float offset)
+    {
+        _idleVisualOffset = offset;
+        ApplyVisualOffsets();
+    }
+
+    private void ApplyVisualOffsets()
+    {
+        if (_bodySprite != null)
+        {
+            Vector3 position = _bodyRestPosition;
+            position.y += _idleVisualOffset;
+            _bodySprite.localPosition = position;
+        }
+
+        if (MouthSprite != null)
+        {
+            Vector3 position = _mouthRestPosition;
+            position.x += _mouthKickOffsetX;
+            position.y += _idleVisualOffset;
+            MouthSprite.transform.localPosition = position;
+        }
     }
 
     private bool IsJumpPressedThisFrame()
@@ -273,6 +298,7 @@ public class Player : MonoBehaviour
 
         if (_mouthRoutine != null)
             StopCoroutine(_mouthRoutine);
+        _mouthKickOffsetX = 0f;
         _mouthRoutine = StartCoroutine(MouthKickRoutine());
     }
 
@@ -291,14 +317,14 @@ public class Player : MonoBehaviour
             scale.y *= Mathf.Lerp(1f, Mathf.Clamp(MouthKickVerticalScale, 0.5f, 1f), kick);
             MouthSprite.transform.localScale = scale;
 
-            Vector3 position = _mouthRestPosition;
-            position.x += MouthKickForward * kick;
-            MouthSprite.transform.localPosition = position;
+            _mouthKickOffsetX = MouthKickForward * kick;
+            ApplyVisualOffsets();
             yield return null;
         }
 
         MouthSprite.transform.localScale = _mouthRestScale;
-        MouthSprite.transform.localPosition = _mouthRestPosition;
+        _mouthKickOffsetX = 0f;
+        ApplyVisualOffsets();
         _mouthRoutine = null;
     }
 
@@ -316,10 +342,12 @@ public class Player : MonoBehaviour
             _mouthRoutine = null;
         }
 
+        _mouthKickOffsetX = 0f;
+        SetIdleVisualOffset(0f);
+
         if (MouthSprite != null)
         {
             MouthSprite.transform.localScale = _mouthRestScale;
-            MouthSprite.transform.localPosition = _mouthRestPosition;
         }
     }
 }

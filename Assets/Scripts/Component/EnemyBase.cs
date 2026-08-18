@@ -8,13 +8,16 @@ public abstract class EnemyBase : MonoBehaviour
     public int ScoreValue = 10;
     public float BobAmplitude = 0.06f;
     public float BobSpeed = 2f;
-    public float DeathDuration = 0.25f;
     public EnemyBody Body;
 
     protected SpriteRenderer[] Renderers;
     private Color[] _originalColors;
     private int _health;
     private bool _dead;
+    private Vector2 _deathImpulse;
+
+    // 子类生成尸块时读取这次命中的冲量，让一击死亡的敌人保留击退效果。
+    protected Vector2 DeathImpulse => _deathImpulse;
 
     protected virtual void Awake()
     {
@@ -38,16 +41,22 @@ public abstract class EnemyBase : MonoBehaviour
         Tween.PingPongLocalY(this, transform, BobAmplitude, BobSpeed);
     }
 
-    // 子类可生成独立的物理尸体；原敌人仍负责淡出和计分。
+    // 子类可生成独立的物理尸体；原敌人随后立即销毁并计分。
     protected virtual void SpawnDeathCorpse()
     {
     }
 
     public void TakeHit(int damage)
     {
+        TakeHit(damage, Vector2.zero);
+    }
+
+    public void TakeHit(int damage, Vector2 hitImpulse)
+    {
         if (_dead || damage <= 0)
             return;
 
+        _deathImpulse += hitImpulse;
         _health -= damage;
         StopCoroutine(nameof(HitFlashRoutine));
         StartCoroutine(HitFlashRoutine());
@@ -77,29 +86,6 @@ public abstract class EnemyBase : MonoBehaviour
             collider.enabled = false;
 
         GameManager.Instance?.AddScore(ScoreValue);
-        StartCoroutine(DeathRoutine());
-    }
-
-    private IEnumerator DeathRoutine()
-    {
-        Vector3 startScale = transform.localScale;
-        float duration = Mathf.Max(0f, DeathDuration);
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
-            transform.localScale = Vector3.LerpUnclamped(startScale, Vector3.zero, t);
-            for (int i = 0; i < Renderers.Length; i++)
-            {
-                var color = _originalColors[i];
-                color.a = Mathf.Lerp(_originalColors[i].a, 0f, t);
-                Renderers[i].color = color;
-            }
-            yield return null;
-        }
-
-        transform.localScale = Vector3.zero;
         Destroy(gameObject);
     }
 }

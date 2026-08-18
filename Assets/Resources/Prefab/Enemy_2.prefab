@@ -82,7 +82,6 @@ MonoBehaviour:
   ScoreValue: 10
   BobAmplitude: 0.06
   BobSpeed: 2
-  DeathDuration: 0.25
   HeadRoot: {fileID: 2680558973985031339}
   BodySprite: {fileID: 6203836315916607404}
   Body: {fileID: 100021601}

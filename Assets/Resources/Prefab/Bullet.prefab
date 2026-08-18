@@ -139,5 +139,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0a1bce6cad528214e80a4139657ec0ec, type: 3}
   - {fileID: 21300000, guid: 44b2b1153edd93f4a9c7dd02bd6252a4, type: 3}
   Speed: 12
-  LifeTime: 3
+  LifeTime: 2
   Damage: 1
+  KnockbackForce: 1.4

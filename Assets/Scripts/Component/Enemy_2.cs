@@ -28,7 +28,8 @@ public class Enemy_2 : EnemyBase
                 3f,
                 0.2f,
                 0.86f,
-                5f);
+                5f,
+                DeathImpulse);
         }
 
         var bodyRenderer = BodySprite != null ? BodySprite.GetComponent<SpriteRenderer>() : null;
@@ -43,7 +44,8 @@ public class Enemy_2 : EnemyBase
                 3f,
                 0.2f,
                 0.86f,
-                5f);
+                5f,
+                DeathImpulse);
         }
     }
 }

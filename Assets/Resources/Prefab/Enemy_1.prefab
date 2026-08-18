@@ -315,7 +315,6 @@ MonoBehaviour:
   ScoreValue: 10
   BobAmplitude: 0.06
   BobSpeed: 2
-  DeathDuration: 0.25
   Body: {fileID: 100011601}
 --- !u!114 &100011601
 MonoBehaviour:
