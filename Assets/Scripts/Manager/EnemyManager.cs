@@ -9,7 +9,6 @@ public class EnemySpawnConfig
 
 public class EnemyManager : MonoBehaviour
 {
-    public MapManager MapManager;
     public List<EnemySpawnConfig> EnemyConfigs;
     public float GenerateInterval = 1.4f;
     public float MinGenerateInterval = 0.55f;
@@ -24,9 +23,6 @@ public class EnemyManager : MonoBehaviour
 
     void Awake()
     {
-        if (MapManager == null)
-            MapManager = FindObjectOfType<MapManager>();
-
         _isValid = EnemyConfigs != null && EnemyConfigs.Exists(config => config != null && config.Prefab != null);
         if (!_isValid)
             Debug.LogError("EnemyManager requires at least one valid EnemySpawnConfig.", this);

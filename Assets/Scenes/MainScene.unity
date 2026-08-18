@@ -171,7 +171,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9b1d88fc821b2c4dbe83d17b65c7186, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CameraObj: {fileID: 519420028}
   BackgroundPrefab: {fileID: 1822315624784705042, guid: 4f5b9bcb533d50b4487b46e8f53519ef, type: 3}
   CloudPrefab: {fileID: 1077726180477916961, guid: 5e34cd56810101a4789c9d54db2751fc, type: 3}
   CloudSprites:
@@ -230,7 +229,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ffd5b8a3bb3996429ddc7f2545041d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MapManager: {fileID: 354557327}
   EnemyConfigs:
   - Prefab: {fileID: 7648483881525841815, guid: ac8ed5ede7198a14f81d6ffe72dc8112, type: 3}
   - Prefab: {fileID: 2504517725312571520, guid: be54baeb0297d964292b36d58bb456b2, type: 3}

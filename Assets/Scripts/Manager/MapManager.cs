@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class MapManager : MonoBehaviour
 {
-    public GameObject CameraObj;
     public GameObject BackgroundPrefab;
     public GameObject CloudPrefab;
     public List<Sprite> CloudSprites;
@@ -21,11 +20,6 @@ public class MapManager : MonoBehaviour
 
     void Awake()
     {
-        if (CameraObj == null && Camera.main != null)
-            CameraObj = Camera.main.gameObject;
-
-        if (CameraObj == null)
-            Debug.LogError("CameraObj is null in MapManager");
         if (BackgroundPrefab == null)
             Debug.LogError("BackgroundPrefab is null in MapManager");
 
