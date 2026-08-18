@@ -1,0 +1,11 @@
+# Governance Round R0001
+- Scope / why now: Remove the inert bootstrap facade left on the MainScene composition root; it is the smallest high-confidence entropy reduction after the first architecture trace.
+- Findings: AG-0001 (validated); AG-0002 and AG-0003 remain recorded for later rounds.
+- Current problem: `GameBootManager` is attached to the `GameManager` GameObject and carries `CameraObj`, `MapManager`, and `PlayerManager` references, but its class has no lifecycle or consumer. The same scene directly owns the real Manager components and their operational fields.
+- Entropy to remove: One unused MonoBehaviour type, one unused `.meta` asset, one serialized component instance, and three dead serialized references.
+- Invariants: Preserve MainScene's build entry, all active Manager components, Prefab references, public gameplay APIs, timing, spawning, pause/game-over semantics, and all serialized values unrelated to the removed component.
+- Implementation: Delete `Assets/Scripts/Manager/GameBootManager.cs` and its `.meta`; remove only the `&354557329` GameBootManager `MonoBehaviour` block and its component entry from `Assets/Scenes/MainScene.unity`.
+- Validation: Targeted reference search returns no `GameBootManager` type/GUID; `dotnet build Assembly-CSharp.csproj --no-restore --nologo` passes with 0 warnings/errors; Unity 2022.3.60f1c1 batchmode import/quit exits 0; `git diff --check` passes; generated `Assembly-CSharp.csproj` no longer lists the deleted source.
+- Rollback: Revert the single R0001 commit or restore only the deleted source/meta and the exact scene block; no other user files are in the baseline.
+- Out of scope: Dependency fallback cleanup (AG-0002), ObjectPool/projectile recycling decisions (AG-0003), gameplay changes, asset redesign, package upgrades, and unrelated bug fixes.
+- Next action: Create the R0001 checkpoint commit after the staged diff review.
