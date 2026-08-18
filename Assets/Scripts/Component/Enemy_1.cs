@@ -8,4 +8,22 @@ public class Enemy_1 : EnemyBase
         if (Body != null)
             Tween.PingPongLocalY(this, Body.transform, BobAmplitude, BobSpeed);
     }
+
+    protected override void SpawnDeathCorpse()
+    {
+        var bodyRenderer = Body != null ? Body.GetComponentInChildren<SpriteRenderer>() : null;
+        if (bodyRenderer == null)
+            return;
+
+        EnemyCorpse.Create(
+            "Enemy_1_Corpse",
+            bodyRenderer,
+            bodyRenderer.transform.position,
+            new Vector2(-0.8f, 0.25f),
+            Random.Range(-35f, 35f),
+            3f,
+            0.22f,
+            0.72f,
+            4.5f);
+    }
 }

@@ -38,6 +38,11 @@ public abstract class EnemyBase : MonoBehaviour
         Tween.PingPongLocalY(this, transform, BobAmplitude, BobSpeed);
     }
 
+    // 子类可生成独立的物理尸体；原敌人仍负责淡出和计分。
+    protected virtual void SpawnDeathCorpse()
+    {
+    }
+
     public void TakeHit(int damage)
     {
         if (_dead || damage <= 0)
@@ -67,6 +72,7 @@ public abstract class EnemyBase : MonoBehaviour
     {
         _dead = true;
         StopAllCoroutines();
+        SpawnDeathCorpse();
         foreach (var collider in GetComponentsInChildren<Collider2D>())
             collider.enabled = false;
 

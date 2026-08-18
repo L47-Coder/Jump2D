@@ -10,13 +10,13 @@ public class Player : MonoBehaviour
     public GameObject BulletPrefab;
     public GameObject CornBulletPrefab;
     public float MachineGunFireRateMultiplier = 4f;
-    public float CornFireInterval = 1.2f;
+    public float CornFireInterval = 0.35f;
     public SpriteRenderer MouthSprite;
     public Sprite DefaultMouthSprite;
     public Sprite MachineGunMouthSprite;
     public Sprite CornMouthSprite;
-    public float AutoHopInterval = 1.15f;
-    public float AutoHopImpulse = 2.8f;
+    public float AutoHopInterval = 0.9f;
+    public float AutoHopImpulse = 4.2f;
     public float MouthKickDuration = 0.1f;
     public float MouthKickScale = 1.2f;
     public float MouthKickVerticalScale = 0.86f;
@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     private bool _isvalid = false;
     private GameObject _targetPosObj;
     private int _hasJumpCount = 2;
+    private bool _isGrounded = true;
     private float _shootTimer;
     private float _autoHopTimer;
     private WeaponType _weaponType = WeaponType.Pea;
@@ -156,6 +157,7 @@ public class Player : MonoBehaviour
     {
         bool wasAirborne = _hasJumpCount < 2;
         _hasJumpCount = 2;
+        _isGrounded = true;
         _autoHopTimer = 0f;
         if (wasAirborne && BodyRoot != null)
             Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 1.08f, 0.16f);
@@ -171,6 +173,7 @@ public class Player : MonoBehaviour
             Rigidbody2D.velocity = new Vector2(Rigidbody2D.velocity.x, 0);
             Rigidbody2D.AddForce(Vector2.up * JumpImpulse, ForceMode2D.Impulse);
             _hasJumpCount--;
+            _isGrounded = false;
             _autoHopTimer = 0f;
             if (BodyRoot != null)
                 Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 0.92f, 0.12f);
@@ -180,7 +183,7 @@ public class Player : MonoBehaviour
     private void TryAutoHop()
     {
         float interval = Mathf.Max(0.1f, AutoHopInterval);
-        if (_hasJumpCount < 2 || Rigidbody2D.velocity.y > 0.05f)
+        if (!_isGrounded || Rigidbody2D.velocity.y > 0.05f)
         {
             _autoHopTimer = 0f;
             return;
@@ -194,9 +197,7 @@ public class Player : MonoBehaviour
         Rigidbody2D.velocity = new Vector2(Rigidbody2D.velocity.x, 0f);
         Rigidbody2D.AddForce(Vector2.up * AutoHopImpulse, ForceMode2D.Impulse);
         _hasJumpCount = 1;
-
-        if (BodyRoot != null)
-            Tween.Punch(this, BodyRoot.transform, _bodyRestScale, 0.95f, 0.12f);
+        _isGrounded = false;
     }
 
     private bool IsJumpPressedThisFrame()

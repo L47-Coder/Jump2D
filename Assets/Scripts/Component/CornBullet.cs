@@ -6,9 +6,10 @@ public class CornBullet : MonoBehaviour
 {
     public SpriteRenderer SpriteRenderer;
     public Sprite[] FlipbookFrames;
-    public float Speed = 8f;
+    public float Speed = 10f;
     public float LifeTime = 2.5f;
-    public float ExplosionRadius = 2.5f;
+    public float ExplosionRadius = 4f;
+    public float ExplosionEffectDuration = 0.24f;
     public int Damage = 99;
     public Action<CornBullet> OnRecycle;
 
@@ -60,7 +61,11 @@ public class CornBullet : MonoBehaviour
 
     private void Explode()
     {
-        CameraManager.Instance?.Shake(0.12f, 0.08f);
+        if (_recycled)
+            return;
+
+        CornExplosionEffect.Play(transform.position, ExplosionRadius, ExplosionEffectDuration);
+        CameraManager.Instance?.Shake(0.08f, 0.04f);
         var hits = Physics2D.OverlapCircleAll(transform.position, ExplosionRadius);
         foreach (var hit in hits)
         {

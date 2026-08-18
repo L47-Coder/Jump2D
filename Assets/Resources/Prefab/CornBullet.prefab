@@ -138,7 +138,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d33b02f407e7d2940a48f79f08b12beb, type: 3}
   - {fileID: 21300000, guid: 9adefe8bc6b2b3349bf6332040a62e39, type: 3}
   - {fileID: 21300000, guid: 7d4ccc6c769ae814ea328db691b3eb75, type: 3}
-  Speed: 8
+  Speed: 10
   LifeTime: 2.5
-  ExplosionRadius: 2.5
+  ExplosionRadius: 4
+  ExplosionEffectDuration: 0.24
   Damage: 99
