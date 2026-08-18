@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 public class Player : MonoBehaviour
@@ -336,29 +335,7 @@ public class Player : MonoBehaviour
         if (!IsPlayingState())
             return false;
 
-        bool mousePressed = Input.GetMouseButtonDown(0);
-        bool keyboardPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow);
-        bool touchPressed = false;
-        bool touchOverUI = false;
-        EventSystem eventSystem = EventSystem.current;
-        bool mouseOverUI = mousePressed && eventSystem != null && eventSystem.IsPointerOverGameObject();
-
-        int touchCount = Input.touchCount;
-        for (int i = 0; i < touchCount; i++)
-        {
-            Touch touch = Input.GetTouch(i);
-            if (touch.phase != TouchPhase.Began)
-                continue;
-
-            touchPressed = true;
-            if (eventSystem != null && eventSystem.IsPointerOverGameObject(touch.fingerId))
-                touchOverUI = true;
-        }
-
-        if (mouseOverUI || touchOverUI)
-            return false;
-
-        return mousePressed || keyboardPressed || touchPressed;
+        return GameplayInput.GetJumpDown();
     }
 
     private void TryShoot()

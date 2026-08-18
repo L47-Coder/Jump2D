@@ -39,6 +39,13 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+#if UNITY_ANDROID && !UNITY_EDITOR
+        // 移动端默认通常以 30 FPS 运行；游戏目标为 60 FPS。
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
+#endif
+
         ApplyTimeScale(GameState.Playing);
     }
 
