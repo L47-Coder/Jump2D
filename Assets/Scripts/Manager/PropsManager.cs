@@ -13,11 +13,34 @@ public class PropsManager : MonoBehaviour
     private float _nextSpawnTime;
     private bool _isValid;
 
+    private static bool IsPlayingState()
+    {
+        var manager = GameManager.Instance;
+        return manager == null || manager.State == GameState.Playing;
+    }
+
     void Awake()
     {
-        _isValid = PropsPrefab != null;
-        if (!_isValid)
+        _isValid = TryValidatePropsPrefab();
+    }
+
+    private bool TryValidatePropsPrefab()
+    {
+        if (PropsPrefab == null)
+        {
             Debug.LogError("PropsManager requires a PropsPrefab.", this);
+            return false;
+        }
+
+        if (PropsPrefab.GetComponent<Props>() == null)
+        {
+            Debug.LogError(
+                $"PropsManager PropsPrefab '{PropsPrefab.name}' must contain a Props component on its root GameObject.",
+                this);
+            return false;
+        }
+
+        return true;
     }
 
     void Start()
@@ -33,7 +56,7 @@ public class PropsManager : MonoBehaviour
 
     void Update()
     {
-        if (!_isValid)
+        if (!_isValid || !IsPlayingState())
             return;
 
         if (Time.time >= _nextSpawnTime)
@@ -45,9 +68,7 @@ public class PropsManager : MonoBehaviour
 
     private void ScheduleNext()
     {
-        float t = GameManager.Instance != null
-            ? GameManager.Instance.DifficultyProgress
-            : 0f;
+        float t = GameManager.GetDifficultyProgressOrDefault();
         float minInterval = Mathf.Max(0.1f, Mathf.Min(MinInterval, MaxInterval));
         float maxInterval = Mathf.Max(minInterval, Mathf.Max(MinInterval, MaxInterval));
         float interval = Mathf.Lerp(maxInterval, minInterval, t);
@@ -65,12 +86,18 @@ public class PropsManager : MonoBehaviour
 
         GameObject obj = Instantiate(PropsPrefab, spawnPosition, Quaternion.identity);
         var props = obj.GetComponent<Props>();
-        if (props != null)
+        if (props == null)
         {
-            WeaponType type = Random.value < Mathf.Clamp01(CornSpawnChance)
-                ? WeaponType.Corn
-                : WeaponType.MachineGun;
-            props.SetWeaponType(type);
+            Debug.LogError(
+                $"PropsManager instantiated PropsPrefab '{PropsPrefab.name}' without a root Props component.",
+                obj);
+            Destroy(obj);
+            return;
         }
+
+        WeaponType type = Random.value < Mathf.Clamp01(CornSpawnChance)
+            ? WeaponType.Corn
+            : WeaponType.MachineGun;
+        props.SetWeaponType(type);
     }
 }

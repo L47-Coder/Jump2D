@@ -13,14 +13,21 @@ public class EnemyManager : MonoBehaviour
     private readonly List<GameObject> _validEnemyPrefabs = new();
     private bool _isValid;
 
+    private static bool IsPlayingState()
+    {
+        var manager = GameManager.Instance;
+        return manager == null || manager.State == GameState.Playing;
+    }
+
     void Awake()
     {
+        _lastGenerateTime = Time.time;
         _validEnemyPrefabs.Clear();
         if (EnemyConfigs != null)
         {
             foreach (var prefab in EnemyConfigs)
             {
-                if (prefab != null)
+                if (prefab != null && TryValidateEnemyPrefab(prefab))
                     _validEnemyPrefabs.Add(prefab);
             }
         }
@@ -30,26 +37,51 @@ public class EnemyManager : MonoBehaviour
             Debug.LogError("EnemyManager requires at least one valid enemy prefab.", this);
     }
 
+    private bool TryValidateEnemyPrefab(GameObject prefab)
+    {
+        var enemy = prefab.GetComponentInChildren<EnemyBase>(true);
+        if (enemy == null)
+        {
+            Debug.LogError(
+                $"EnemyManager enemy prefab '{prefab.name}' must contain an EnemyBase component.",
+                this);
+            return false;
+        }
+
+        foreach (var collider in prefab.GetComponentsInChildren<Collider2D>(true))
+        {
+            if (!collider.CompareTag("Enemy"))
+                continue;
+
+            if (collider.GetComponentInParent<EnemyBase>(true) != null)
+                return true;
+        }
+
+        Debug.LogError(
+            $"EnemyManager enemy prefab '{prefab.name}' must contain at least one Collider2D " +
+            "tagged Enemy under an EnemyBase.",
+            this);
+        return false;
+    }
+
     void Update()
     {
-        if (!_isValid)
+        if (!_isValid || !IsPlayingState())
             return;
 
-        float difficultyT = GameManager.Instance != null
-            ? GameManager.Instance.DifficultyProgress
-            : 0f;
+        float difficultyT = GameManager.GetDifficultyProgressOrDefault();
         float initialInterval = Mathf.Max(0.01f, GenerateInterval);
         float minimumInterval = Mathf.Max(0.01f, MinGenerateInterval);
         float currentInterval = Mathf.Max(0.01f, Mathf.Lerp(initialInterval, minimumInterval, difficultyT));
 
         if (Time.time - _lastGenerateTime >= currentInterval)
         {
-            GenerateEnemyBatch();
+            GenerateEnemyBatch(difficultyT);
             _lastGenerateTime = Time.time;
         }
     }
 
-    private void GenerateEnemyBatch()
+    private void GenerateEnemyBatch(float difficultyT)
     {
         // 随难度推进，单次生成的敌人数量上限逐步提高，保证开局也有连续目标。
         var cameraManager = CameraManager.Instance;
@@ -59,9 +91,6 @@ public class EnemyManager : MonoBehaviour
         if (_validEnemyPrefabs.Count == 0)
             return;
 
-        float difficultyT = GameManager.Instance != null
-            ? GameManager.Instance.DifficultyProgress
-            : 0f;
         int minimumBatchCount = Mathf.Max(1, MinimumBatchCount);
         int maxBatch = minimumBatchCount + Mathf.FloorToInt(
             difficultyT * Mathf.Max(0, AdditionalBatchCountAtMaxDifficulty));

@@ -69,11 +69,20 @@ public sealed class AudioManager : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
     {
+        EnsureInstance();
+    }
+
+    private static AudioManager EnsureInstance()
+    {
         if (Instance != null)
-            return;
+            return Instance;
+
+        if (!Application.isPlaying)
+            return null;
 
         var managerObject = new GameObject(nameof(AudioManager));
-        managerObject.AddComponent<AudioManager>();
+        var manager = managerObject.AddComponent<AudioManager>();
+        return Instance != null ? Instance : manager;
     }
 
     private void Awake()
@@ -180,19 +189,11 @@ public sealed class AudioManager : MonoBehaviour
     // 统一播放入口。音效未接入玩法前也可以由调试按钮直接调用验证。
     public static void PlaySfx(SfxId id, float volumeMultiplier = 1f, float pitchMultiplier = 1f)
     {
-        if (Instance == null)
-        {
-            if (!Application.isPlaying)
-                return;
-
-            var managerObject = new GameObject(nameof(AudioManager));
-            managerObject.AddComponent<AudioManager>();
-        }
-
-        if (Instance == null)
+        var instance = EnsureInstance();
+        if (instance == null)
             return;
 
-        Instance.PlayInternal(id, volumeMultiplier, pitchMultiplier);
+        instance.PlayInternal(id, volumeMultiplier, pitchMultiplier);
     }
 
     private void PlayInternal(SfxId id, float volumeMultiplier, float pitchMultiplier)

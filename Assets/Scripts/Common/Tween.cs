@@ -16,8 +16,18 @@ public static class Tween
         scaleMultiplier = Mathf.Max(0f, scaleMultiplier);
         duration = Mathf.Max(0f, duration);
 
-        if (ActivePunches.TryGetValue(target, out var running) && running != null)
-            host.StopCoroutine(running);
+        if (ActivePunches.TryGetValue(target, out var running))
+        {
+            if (running != null)
+                host.StopCoroutine(running);
+            ActivePunches.Remove(target);
+        }
+
+        if (duration <= 0f)
+        {
+            target.localScale = restScale;
+            return null;
+        }
 
         var routine = host.StartCoroutine(PunchRoutine(target, restScale, scaleMultiplier, duration));
         ActivePunches[target] = routine;

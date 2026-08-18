@@ -26,6 +26,11 @@ public class GameManager : MonoBehaviour
 
     private float _difficultyElapsed;
 
+    public static float GetDifficultyProgressOrDefault()
+    {
+        return Instance != null ? Instance.DifficultyProgress : 0f;
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -34,7 +39,7 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
-        Time.timeScale = 1f;
+        ApplyTimeScale(GameState.Playing);
     }
 
     private void Update()
@@ -57,7 +62,7 @@ public class GameManager : MonoBehaviour
             return;
 
         State = GameState.GameOver;
-        Time.timeScale = 0f;
+        ApplyTimeScale(State);
         AudioManager.PlaySfx(SfxId.GameOver);
         OnGameOver?.Invoke();
     }
@@ -70,14 +75,14 @@ public class GameManager : MonoBehaviour
         if (State == GameState.Playing)
         {
             State = GameState.Paused;
-            Time.timeScale = 0f;
+            ApplyTimeScale(State);
             AudioManager.PlaySfx(SfxId.Pause);
             OnPauseChanged?.Invoke(true);
         }
         else
         {
             State = GameState.Playing;
-            Time.timeScale = 1f;
+            ApplyTimeScale(State);
             AudioManager.PlaySfx(SfxId.Resume);
             OnPauseChanged?.Invoke(false);
         }
@@ -85,8 +90,15 @@ public class GameManager : MonoBehaviour
 
     public void Restart()
     {
-        Time.timeScale = 1f;
+        // Restart must release the old scene's pause/game-over time scale before loading.
+        AudioManager.StopAllSfx();
+        ApplyTimeScale(GameState.Playing);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private static void ApplyTimeScale(GameState state)
+    {
+        Time.timeScale = state == GameState.Playing ? 1f : 0f;
     }
 
     private void OnDestroy()
@@ -94,7 +106,7 @@ public class GameManager : MonoBehaviour
         if (Instance == this)
         {
             Instance = null;
-            Time.timeScale = 1f;
+            ApplyTimeScale(GameState.Playing);
         }
     }
 }

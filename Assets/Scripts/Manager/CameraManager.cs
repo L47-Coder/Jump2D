@@ -47,7 +47,7 @@ public class CameraManager : MonoBehaviour
         _isValid = true;
     }
 
-    private bool TryGetPosition(out Vector3 position)
+    private bool TryGetWorldAnchorPosition(out Vector3 position)
     {
         if (!_isValid || CameraObj == null)
         {
@@ -55,19 +55,19 @@ public class CameraManager : MonoBehaviour
             return false;
         }
 
-        position = CameraObj.transform.position;
+        position = _basePosition;
         return true;
     }
 
     public bool TryGetSpawnPosition(float y, out Vector3 position)
     {
-        if (!TryGetPosition(out var cameraPosition))
+        if (!TryGetWorldAnchorPosition(out var worldAnchorPosition))
         {
             position = default;
             return false;
         }
 
-        position = new Vector3(cameraPosition.x + SpawnAheadDistance, y, 0f);
+        position = new Vector3(worldAnchorPosition.x + SpawnAheadDistance, y, 0f);
         return true;
     }
 
@@ -76,9 +76,7 @@ public class CameraManager : MonoBehaviour
         if (!_isValid)
             return;
 
-        float difficultyT = GameManager.Instance != null
-            ? GameManager.Instance.DifficultyProgress
-            : 0f;
+        float difficultyT = GameManager.GetDifficultyProgressOrDefault();
         float currentSpeed = Mathf.Lerp(_baseSpeed, MaxCameraSpeed, difficultyT);
         _basePosition += currentSpeed * Time.deltaTime * Vector3.right;
         CameraObj.transform.position = _basePosition + _shakeOffset;
@@ -121,4 +119,3 @@ public class CameraManager : MonoBehaviour
             Instance = null;
     }
 }
-
