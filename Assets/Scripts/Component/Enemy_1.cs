@@ -23,20 +23,17 @@ public class Enemy_1 : EnemyBase
         if (bodyRenderer == null)
             return;
 
-        EnemyCorpse.Create(
+        SpawnCorpse(
             "Enemy_1_Corpse",
             bodyRenderer,
-            bodyRenderer.transform.position,
-            CorpseInitialVelocity,
-            Random.Range(
-                Mathf.Min(CorpseInitialAngularVelocityMin, CorpseInitialAngularVelocityMax),
-                Mathf.Max(CorpseInitialAngularVelocityMin, CorpseInitialAngularVelocityMax)),
-            CorpseGravityScale,
-            CorpseBounceFactor,
-            CorpseGroundFriction,
-            CorpseLifetime,
-            DeathImpulse,
-            DeathCorpseTint,
-            CorpseSettings);
+            new CorpseLaunchSpec(
+                CorpseInitialVelocity,
+                Random.Range(
+                    Mathf.Min(CorpseInitialAngularVelocityMin, CorpseInitialAngularVelocityMax),
+                    Mathf.Max(CorpseInitialAngularVelocityMin, CorpseInitialAngularVelocityMax)),
+                CorpseGravityScale,
+                CorpseBounceFactor,
+                CorpseGroundFriction,
+                CorpseLifetime));
     }
 }

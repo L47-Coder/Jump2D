@@ -2,68 +2,24 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 玉米炮弹：飞行后对范围内所有敌人造成范围伤害
-public class CornBullet : MonoBehaviour
+public class CornBullet : ProjectileBase
 {
-    public SpriteRenderer SpriteRenderer;
-    public Sprite[] FlipbookFrames;
-    public float Speed = 10f;
-    public float LifeTime = 2.5f;
     public float ExplosionRadius = 4f;
     public float ExplosionEffectDuration = 0.24f;
     public int Damage = 99;
     public float ExplosionKnockbackForce = 2.5f;
     public float ExplosionShakeDuration = 0.08f;
     public float ExplosionShakeMagnitude = 0.04f;
-    public float FrameInterval = 0.06f;
     public CornExplosionSettings ExplosionSettings = new CornExplosionSettings();
-    private float _age;
-    private float _frameTimer;
-    private int _frameIndex;
-    private bool _finished;
 
-    void OnEnable()
+    protected override void HandleEnemyHit(EnemyBase enemy)
     {
-        _age = 0f;
-        _frameTimer = 0f;
-        _frameIndex = 0;
-        _finished = false;
-        if (SpriteRenderer != null && FlipbookFrames != null && FlipbookFrames.Length > 0)
-            SpriteRenderer.sprite = FlipbookFrames[0];
-    }
-
-    void Update()
-    {
-        transform.Translate(Vector3.right * (Speed * Time.deltaTime), Space.World);
-        AnimateFlipbook();
-
-        _age += Time.deltaTime;
-        if (_age >= LifeTime)
-            Finish();
-    }
-
-    private void AnimateFlipbook()
-    {
-        if (FlipbookFrames == null || FlipbookFrames.Length == 0 || SpriteRenderer == null)
-            return;
-
-        _frameTimer += Time.deltaTime;
-        if (_frameTimer < Mathf.Max(0.001f, FrameInterval))
-            return;
-
-        _frameTimer = 0f;
-        _frameIndex = (_frameIndex + 1) % FlipbookFrames.Length;
-        SpriteRenderer.sprite = FlipbookFrames[_frameIndex];
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.CompareTag("Enemy"))
-            Explode();
+        Explode();
     }
 
     private void Explode()
     {
-        if (_finished)
+        if (IsFinished)
             return;
 
         CornExplosionEffect.Play(transform.position, ExplosionRadius, ExplosionEffectDuration, ExplosionSettings);
@@ -72,10 +28,7 @@ public class CornBullet : MonoBehaviour
         var hitEnemies = new HashSet<EnemyBase>();
         foreach (var hit in hits)
         {
-            if (!hit.CompareTag("Enemy"))
-                continue;
-            var enemy = hit.GetComponentInParent<EnemyBase>();
-            if (enemy == null || !hitEnemies.Add(enemy))
+            if (!EnemyTargetResolver.TryResolve(hit, out var enemy) || !hitEnemies.Add(enemy))
                 continue;
 
             Vector2 direction = (Vector2)(enemy.transform.position - transform.position);
@@ -86,15 +39,5 @@ public class CornBullet : MonoBehaviour
 
             enemy.TakeHit(Damage, direction * Mathf.Max(0f, ExplosionKnockbackForce));
         }
-        Finish();
-    }
-
-    private void Finish()
-    {
-        if (_finished)
-            return;
-
-        _finished = true;
-        Destroy(gameObject);
     }
 }

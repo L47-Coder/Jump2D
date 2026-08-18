@@ -20,6 +20,11 @@ public class GameManager : MonoBehaviour
 
     public GameState State { get; private set; } = GameState.Playing;
     public int Score { get; private set; }
+    public float DifficultyRampDuration = 90f;
+    public float DifficultyProgress => Mathf.Clamp01(
+        _difficultyElapsed / Mathf.Max(0.01f, DifficultyRampDuration));
+
+    private float _difficultyElapsed;
 
     void Awake()
     {
@@ -30,6 +35,11 @@ public class GameManager : MonoBehaviour
         }
         Instance = this;
         Time.timeScale = 1f;
+    }
+
+    private void Update()
+    {
+        _difficultyElapsed += Time.deltaTime;
     }
 
     public void AddScore(int amount)

@@ -29,16 +29,11 @@ public class EnemyCorpse : MonoBehaviour
     private float _groundAngularDamping;
     private float _lifetime;
 
-    public static EnemyCorpse Create(
+    internal static EnemyCorpse Create(
         string corpseName,
         SpriteRenderer source,
         Vector3 position,
-        Vector2 initialVelocity,
-        float initialAngularVelocity,
-        float gravityScale,
-        float bounceFactor,
-        float groundFriction,
-        float lifetime,
+        EnemyBase.CorpseLaunchSpec launch,
         Vector2 hitImpulse,
         Color corpseTint,
         EnemyCorpseSettings settings)
@@ -55,14 +50,14 @@ public class EnemyCorpse : MonoBehaviour
         root.transform.localScale = source.transform.lossyScale;
 
         var rigidbody = root.AddComponent<Rigidbody2D>();
-        rigidbody.gravityScale = Mathf.Max(0f, gravityScale);
+        rigidbody.gravityScale = Mathf.Max(0f, launch.GravityScale);
         rigidbody.mass = Mathf.Max(0.01f, settings.Mass);
         rigidbody.drag = Mathf.Max(0f, settings.LinearDrag);
         rigidbody.angularDrag = Mathf.Max(0f, settings.AngularDrag);
         rigidbody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         rigidbody.interpolation = RigidbodyInterpolation2D.Interpolate;
-        rigidbody.velocity = initialVelocity;
-        rigidbody.angularVelocity = initialAngularVelocity;
+        rigidbody.velocity = launch.InitialVelocity;
+        rigidbody.angularVelocity = launch.InitialAngularVelocity;
         rigidbody.AddForce(hitImpulse, ForceMode2D.Impulse);
 
         Vector2 randomDirection = Random.insideUnitCircle;
@@ -95,11 +90,11 @@ public class EnemyCorpse : MonoBehaviour
 
         var corpse = root.AddComponent<EnemyCorpse>();
         corpse._rigidbody = rigidbody;
-        corpse._bounceFactor = Mathf.Clamp01(bounceFactor);
-        corpse._groundFriction = Mathf.Clamp01(groundFriction);
+        corpse._bounceFactor = Mathf.Clamp01(launch.BounceFactor);
+        corpse._groundFriction = Mathf.Clamp01(launch.GroundFriction);
         corpse._bounceImpactThreshold = Mathf.Max(0f, settings.BounceImpactThreshold);
         corpse._groundAngularDamping = Mathf.Clamp01(settings.GroundAngularDamping);
-        corpse._lifetime = Mathf.Max(0.1f, lifetime);
+        corpse._lifetime = Mathf.Max(0.1f, launch.Lifetime);
         corpse.StartCoroutine(corpse.DestroyAfterLifetime());
         return corpse;
     }

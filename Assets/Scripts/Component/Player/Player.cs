@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
     public float MinimumMouthKickDuration = 0.01f;
     private bool _isvalid = false;
     private GameObject _targetPosObj;
-    private int _hasJumpCount = 2;
+    private int _hasJumpCount;
     private bool _isGrounded = true;
     private float _stompInvincibilityUntil;
     private bool _wasDescending;
@@ -55,6 +55,7 @@ public class Player : MonoBehaviour
     private Vector3 _shadowRestPosition;
     private Vector3 _mouthRestScale;
     private Vector3 _mouthRestPosition;
+    private int NormalizedMaxJumpCount => Mathf.Max(0, MaxJumpCount);
     public bool IsFalling => _isvalid && !_isGrounded && Rigidbody2D != null &&
         (_wasDescending || Rigidbody2D.velocity.y < FallingVelocityThreshold);
     public bool IsStompProtected => Time.time < _stompInvincibilityUntil;
@@ -101,7 +102,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        _hasJumpCount = Mathf.Max(0, MaxJumpCount);
+        _hasJumpCount = NormalizedMaxJumpCount;
         _bodySprite = BodyRoot.transform.Find("BodySprite");
         if (_bodySprite != null)
             _bodyRestPosition = _bodySprite.localPosition;
@@ -178,7 +179,7 @@ public class Player : MonoBehaviour
         SyncShadowHorizontalPosition();
     }
 
-    public void AlignBodyHorizontally()
+    private void AlignBodyHorizontally()
     {
         if (Rigidbody2D == null)
             return;
@@ -248,7 +249,7 @@ public class Player : MonoBehaviour
     //接触地面
     public void GroundContact()
     {
-        _hasJumpCount = 2;
+        _hasJumpCount = NormalizedMaxJumpCount;
         _isGrounded = true;
         _wasDescending = false;
         // 落地后从 0 相位重新开始，下一帧立即进入上升段。
@@ -258,7 +259,7 @@ public class Player : MonoBehaviour
 
     private void TryJump()
     {
-        if (!IsJumpPressedThisFrame() || IsJumpPointerOverUI())
+        if (!TryReadJumpInput())
             return;
 
         if (_hasJumpCount > 0)
@@ -314,36 +315,31 @@ public class Player : MonoBehaviour
         }
     }
 
-    private bool IsJumpPressedThisFrame()
+    private bool TryReadJumpInput()
     {
-        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow))
-            return true;
+        bool mousePressed = Input.GetMouseButtonDown(0);
+        bool keyboardPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow);
+        bool touchPressed = false;
+        bool touchOverUI = false;
+        EventSystem eventSystem = EventSystem.current;
+        bool mouseOverUI = mousePressed && eventSystem != null && eventSystem.IsPointerOverGameObject();
 
-        for (int i = 0; i < Input.touchCount; i++)
+        int touchCount = Input.touchCount;
+        for (int i = 0; i < touchCount; i++)
         {
-            if (Input.GetTouch(i).phase == TouchPhase.Began)
-                return true;
+            Touch touch = Input.GetTouch(i);
+            if (touch.phase != TouchPhase.Began)
+                continue;
+
+            touchPressed = true;
+            if (eventSystem != null && eventSystem.IsPointerOverGameObject(touch.fingerId))
+                touchOverUI = true;
         }
 
-        return false;
-    }
-
-    private bool IsJumpPointerOverUI()
-    {
-        if (EventSystem.current == null)
+        if (mouseOverUI || touchOverUI)
             return false;
 
-        if (Input.GetMouseButtonDown(0) && EventSystem.current.IsPointerOverGameObject())
-            return true;
-
-        for (int i = 0; i < Input.touchCount; i++)
-        {
-            var touch = Input.GetTouch(i);
-            if (touch.phase == TouchPhase.Began && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
-                return true;
-        }
-
-        return false;
+        return mousePressed || keyboardPressed || touchPressed;
     }
 
     private void TryShoot()

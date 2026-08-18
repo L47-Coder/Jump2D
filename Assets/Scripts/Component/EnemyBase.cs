@@ -27,6 +27,32 @@ public abstract class EnemyBase : MonoBehaviour
     protected Vector2 DeathImpulse => _deathImpulse;
     protected Color DeathCorpseTint => _wasSquashed ? SquashedCorpseColor : CorpseColor;
 
+    protected internal struct CorpseLaunchSpec
+    {
+        public Vector2 InitialVelocity;
+        public float InitialAngularVelocity;
+        public float GravityScale;
+        public float BounceFactor;
+        public float GroundFriction;
+        public float Lifetime;
+
+        public CorpseLaunchSpec(
+            Vector2 initialVelocity,
+            float initialAngularVelocity,
+            float gravityScale,
+            float bounceFactor,
+            float groundFriction,
+            float lifetime)
+        {
+            InitialVelocity = initialVelocity;
+            InitialAngularVelocity = initialAngularVelocity;
+            GravityScale = gravityScale;
+            BounceFactor = bounceFactor;
+            GroundFriction = groundFriction;
+            Lifetime = lifetime;
+        }
+    }
+
     protected virtual void Awake()
     {
         if (Body == null)
@@ -46,19 +72,24 @@ public abstract class EnemyBase : MonoBehaviour
     }
 
     // 子类可覆盖以对多个部件（如敌人2的头/身体）做异步浮动
-    protected virtual void StartIdleBob()
-    {
-        Tween.PingPongLocalY(this, transform, BobAmplitude, BobSpeed);
-    }
+    protected abstract void StartIdleBob();
 
     // 子类可生成独立的物理尸体；原敌人随后立即销毁并计分。
-    protected virtual void SpawnDeathCorpse()
-    {
-    }
+    protected abstract void SpawnDeathCorpse();
 
-    public void TakeHit(int damage)
+    protected void SpawnCorpse(string corpseName, SpriteRenderer source, CorpseLaunchSpec launch)
     {
-        TakeHit(damage, Vector2.zero);
+        if (source == null)
+            return;
+
+        EnemyCorpse.Create(
+            corpseName,
+            source,
+            source.transform.position,
+            launch,
+            DeathImpulse,
+            DeathCorpseTint,
+            CorpseSettings);
     }
 
     public void TakeHit(int damage, Vector2 hitImpulse)
@@ -93,8 +124,7 @@ public abstract class EnemyBase : MonoBehaviour
 
         _dead = true;
         StopAllCoroutines();
-        foreach (var collider in GetComponentsInChildren<Collider2D>())
-            collider.enabled = false;
+        DisableColliders();
         Destroy(gameObject);
     }
 
@@ -114,10 +144,15 @@ public abstract class EnemyBase : MonoBehaviour
         _dead = true;
         StopAllCoroutines();
         SpawnDeathCorpse();
-        foreach (var collider in GetComponentsInChildren<Collider2D>())
-            collider.enabled = false;
+        DisableColliders();
 
         GameManager.Instance?.AddScore(ScoreValue);
         Destroy(gameObject);
+    }
+
+    private void DisableColliders()
+    {
+        foreach (var collider in GetComponentsInChildren<Collider2D>())
+            collider.enabled = false;
     }
 }

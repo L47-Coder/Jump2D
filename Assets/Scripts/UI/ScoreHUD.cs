@@ -2,23 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // 监听分数变化刷新 UI，并做一次数值弹跳反馈
-public class ScoreHUD : MonoBehaviour
+public class ScoreHUD : GameManagerBinding
 {
     public Text ScoreText;
     public float ScorePunchScale = 1.3f;
     public float ScorePunchDuration = 0.2f;
-    private GameManager _subscribedManager;
     private Vector3 _restScale = Vector3.one;
-
-    void OnEnable()
-    {
-        TrySubscribe();
-    }
-
-    void OnDisable()
-    {
-        Unsubscribe();
-    }
 
     void Awake()
     {
@@ -27,13 +16,6 @@ public class ScoreHUD : MonoBehaviour
 
         if (ScoreText != null)
             _restScale = ScoreText.transform.localScale;
-    }
-
-    void Start()
-    {
-        TrySubscribe();
-        if (ScoreText != null && _subscribedManager == null)
-            ScoreText.text = "0";
     }
 
     private void HandleScoreChanged(int score)
@@ -45,24 +27,18 @@ public class ScoreHUD : MonoBehaviour
         Tween.Punch(this, ScoreText.transform, _restScale, ScorePunchScale, ScorePunchDuration);
     }
 
-    private void TrySubscribe()
+    protected override void Subscribe(GameManager manager)
     {
-        var manager = GameManager.Instance;
-        if (manager == null || _subscribedManager == manager)
-            return;
-
-        Unsubscribe();
-        _subscribedManager = manager;
-        _subscribedManager.OnScoreChanged += HandleScoreChanged;
-        HandleScoreChanged(_subscribedManager.Score);
+        manager.OnScoreChanged += HandleScoreChanged;
     }
 
-    private void Unsubscribe()
+    protected override void Unsubscribe(GameManager manager)
     {
-        if (_subscribedManager == null)
-            return;
+        manager.OnScoreChanged -= HandleScoreChanged;
+    }
 
-        _subscribedManager.OnScoreChanged -= HandleScoreChanged;
-        _subscribedManager = null;
+    protected override void OnManagerBound(GameManager manager)
+    {
+        HandleScoreChanged(manager.Score);
     }
 }

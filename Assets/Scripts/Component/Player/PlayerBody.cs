@@ -28,8 +28,7 @@ public class PlayerBody : MonoBehaviour
 
     private void HandleEnemyContact(Collider2D other)
     {
-        var enemy = other.GetComponentInParent<EnemyBase>();
-        if (enemy == null)
+        if (!EnemyTargetResolver.TryResolve(other, out var enemy))
             return;
 
         if (Player != null && Player.IsFalling)

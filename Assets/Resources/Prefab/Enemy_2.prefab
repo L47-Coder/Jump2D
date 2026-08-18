@@ -97,7 +97,6 @@ MonoBehaviour:
     MinimumCircleRadius: 0.12
     BounceImpactThreshold: 0.25
     GroundAngularDamping: 0.62
-  Body: {fileID: 100021601}
   HeadRoot: {fileID: 2680558973985031339}
   BodySprite: {fileID: 6203836315916607404}
   HeadCorpseInitialVelocity: {x: -1.35, y: 1.45}
@@ -474,5 +473,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c040f73f9187a4245997ac99310f399c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Enemy: {fileID: 1514029775182094922}
-  Collider: {fileID: 2005176609620951629}

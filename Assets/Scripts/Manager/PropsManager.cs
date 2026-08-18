@@ -7,12 +7,9 @@ public class PropsManager : MonoBehaviour
     public float SpawnY = 1f;
     public float MinInterval = 8f;
     public float MaxInterval = 14f;
-    public float DifficultyRampDuration = 90f;
     public float IntervalRandomMinMultiplier = 0.8f;
     public float IntervalRandomMaxMultiplier = 1.2f;
-    public float SpawnAheadDistance = 10f;
     public float CornSpawnChance = 0.5f;
-    private float _elapsed;
     private float _nextSpawnTime;
     private bool _isValid;
 
@@ -39,7 +36,6 @@ public class PropsManager : MonoBehaviour
         if (!_isValid)
             return;
 
-        _elapsed += Time.deltaTime;
         if (Time.time >= _nextSpawnTime)
         {
             SpawnProps();
@@ -49,7 +45,9 @@ public class PropsManager : MonoBehaviour
 
     private void ScheduleNext()
     {
-        float t = Mathf.Clamp01(_elapsed / Mathf.Max(0.01f, DifficultyRampDuration));
+        float t = GameManager.Instance != null
+            ? GameManager.Instance.DifficultyProgress
+            : 0f;
         float minInterval = Mathf.Max(0.1f, Mathf.Min(MinInterval, MaxInterval));
         float maxInterval = Mathf.Max(minInterval, Mathf.Max(MinInterval, MaxInterval));
         float interval = Mathf.Lerp(maxInterval, minInterval, t);
@@ -60,10 +58,11 @@ public class PropsManager : MonoBehaviour
 
     private void SpawnProps()
     {
-        if (PropsPrefab == null || Camera.main == null)
+        var cameraManager = CameraManager.Instance;
+        if (PropsPrefab == null || cameraManager == null ||
+            !cameraManager.TryGetSpawnPosition(SpawnY, out var spawnPosition))
             return;
 
-        Vector3 spawnPosition = new Vector3(Camera.main.transform.position.x + SpawnAheadDistance, SpawnY, 0);
         GameObject obj = Instantiate(PropsPrefab, spawnPosition, Quaternion.identity);
         var props = obj.GetComponent<Props>();
         if (props != null)

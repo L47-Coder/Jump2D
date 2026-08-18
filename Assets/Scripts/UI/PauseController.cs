@@ -1,29 +1,11 @@
 using UnityEngine;
 
 // 暂停按钮/暂停面板的显示与交互
-public class PauseController : MonoBehaviour
+public class PauseController : GameManagerBinding
 {
     public GameObject PausePanel;
-    private GameManager _subscribedManager;
 
-    void OnEnable()
-    {
-        TrySubscribe();
-    }
-
-    void OnDisable()
-    {
-        Unsubscribe();
-    }
-
-    void Start()
-    {
-        TrySubscribe();
-    }
-
-    public void OnPauseButtonClicked() => GameManager.Instance?.TogglePause();
-
-    public void OnResumeButtonClicked() => GameManager.Instance?.TogglePause();
+    public void OnPauseToggleClicked() => Manager?.TogglePause();
 
     private void HandlePauseChanged(bool paused)
     {
@@ -31,24 +13,18 @@ public class PauseController : MonoBehaviour
             PausePanel.SetActive(paused);
     }
 
-    private void TrySubscribe()
+    protected override void Subscribe(GameManager manager)
     {
-        var manager = GameManager.Instance;
-        if (manager == null || _subscribedManager == manager)
-            return;
-
-        Unsubscribe();
-        _subscribedManager = manager;
-        _subscribedManager.OnPauseChanged += HandlePauseChanged;
-        HandlePauseChanged(_subscribedManager.State == GameState.Paused);
+        manager.OnPauseChanged += HandlePauseChanged;
     }
 
-    private void Unsubscribe()
+    protected override void Unsubscribe(GameManager manager)
     {
-        if (_subscribedManager == null)
-            return;
+        manager.OnPauseChanged -= HandlePauseChanged;
+    }
 
-        _subscribedManager.OnPauseChanged -= HandlePauseChanged;
-        _subscribedManager = null;
+    protected override void OnManagerBound(GameManager manager)
+    {
+        HandlePauseChanged(manager.State == GameState.Paused);
     }
 }

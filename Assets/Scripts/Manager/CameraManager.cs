@@ -9,11 +9,10 @@ public class CameraManager : MonoBehaviour
     public GameObject CameraObj;
     public float CameraSpeed;
     public float MaxCameraSpeed = 5f;
-    public float DifficultyRampDuration = 90f;
+    public float SpawnAheadDistance = 10f;
     public float DefaultShakeDuration = 0.15f;
     public float DefaultShakeMagnitude = 0.15f;
-    private bool _isvalid = false;
-    private float _elapsed = 0f;
+    private bool _isValid;
     private float _baseSpeed;
     private Vector3 _basePosition;
     private Vector3 _shakeOffset = Vector3.zero;
@@ -32,11 +31,6 @@ public class CameraManager : MonoBehaviour
 
     void Start()
     {
-        if (CameraObj == null && Camera.main != null)
-            CameraObj = Camera.main.gameObject;
-        if (MapManager == null)
-            MapManager = FindObjectOfType<MapManager>();
-
         if (CameraObj == null)
             Debug.LogError("CameraObj is null in CameraManager");
         if (MapManager == null)
@@ -50,20 +44,42 @@ public class CameraManager : MonoBehaviour
         }
 
         _basePosition = CameraObj.transform.position;
-        _isvalid = true;
+        _isValid = true;
+    }
+
+    private bool TryGetPosition(out Vector3 position)
+    {
+        if (!_isValid || CameraObj == null)
+        {
+            position = default;
+            return false;
+        }
+
+        position = CameraObj.transform.position;
+        return true;
+    }
+
+    public bool TryGetSpawnPosition(float y, out Vector3 position)
+    {
+        if (!TryGetPosition(out var cameraPosition))
+        {
+            position = default;
+            return false;
+        }
+
+        position = new Vector3(cameraPosition.x + SpawnAheadDistance, y, 0f);
+        return true;
     }
 
     void Update()
     {
-        if (!_isvalid)
-        {
-            Debug.LogError("CameraManager is not valid. Cannot update camera.");
+        if (!_isValid)
             return;
-        }
 
-        _elapsed += Time.deltaTime;
-        float rampDuration = Mathf.Max(0.01f, DifficultyRampDuration);
-        float currentSpeed = Mathf.Lerp(_baseSpeed, MaxCameraSpeed, Mathf.Clamp01(_elapsed / rampDuration));
+        float difficultyT = GameManager.Instance != null
+            ? GameManager.Instance.DifficultyProgress
+            : 0f;
+        float currentSpeed = Mathf.Lerp(_baseSpeed, MaxCameraSpeed, difficultyT);
         _basePosition += currentSpeed * Time.deltaTime * Vector3.right;
         CameraObj.transform.position = _basePosition + _shakeOffset;
 
@@ -78,7 +94,7 @@ public class CameraManager : MonoBehaviour
             duration = DefaultShakeDuration;
         if (magnitude < 0f)
             magnitude = DefaultShakeMagnitude;
-        if (!_isvalid || duration <= 0f || magnitude <= 0f)
+        if (!_isValid || duration <= 0f || magnitude <= 0f)
             return;
 
         if (_shakeRoutine != null)
