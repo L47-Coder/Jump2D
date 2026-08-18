@@ -91,6 +91,7 @@ public class GameManager : MonoBehaviour
     public void Restart()
     {
         // Restart must release the old scene's pause/game-over time scale before loading.
+        AudioManager.StopAllSfx();
         ApplyTimeScale(GameState.Playing);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }

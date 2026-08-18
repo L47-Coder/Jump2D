@@ -13,8 +13,15 @@ public class EnemyManager : MonoBehaviour
     private readonly List<GameObject> _validEnemyPrefabs = new();
     private bool _isValid;
 
+    private static bool IsPlayingState()
+    {
+        var manager = GameManager.Instance;
+        return manager == null || manager.State == GameState.Playing;
+    }
+
     void Awake()
     {
+        _lastGenerateTime = Time.time;
         _validEnemyPrefabs.Clear();
         if (EnemyConfigs != null)
         {
@@ -59,7 +66,7 @@ public class EnemyManager : MonoBehaviour
 
     void Update()
     {
-        if (!_isValid)
+        if (!_isValid || !IsPlayingState())
             return;
 
         float difficultyT = GameManager.GetDifficultyProgressOrDefault();

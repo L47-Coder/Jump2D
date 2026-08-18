@@ -56,13 +56,19 @@ public class Player : MonoBehaviour
     private Vector3 _mouthRestScale;
     private Vector3 _mouthRestPosition;
     private int NormalizedMaxJumpCount => Mathf.Max(0, MaxJumpCount);
-    public bool IsFalling => _isvalid && !_isGrounded && Rigidbody2D != null &&
+    public bool IsFalling => IsPlayingState() && _isvalid && !_isGrounded && Rigidbody2D != null &&
         (_wasDescending || Rigidbody2D.velocity.y < FallingVelocityThreshold);
     public bool IsStompProtected => Time.time < _stompInvincibilityUntil;
 
+    private static bool IsPlayingState()
+    {
+        var manager = GameManager.Instance;
+        return manager == null || manager.State == GameState.Playing;
+    }
+
     public void ApplyStompBounce()
     {
-        if (!_isvalid || Rigidbody2D == null)
+        if (!IsPlayingState() || !_isvalid || Rigidbody2D == null)
             return;
 
         Rigidbody2D.velocity = Vector2.zero;
@@ -139,7 +145,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (!_isvalid || _targetPosObj == null || Rigidbody2D == null)
+        if (!IsPlayingState() || !_isvalid || _targetPosObj == null || Rigidbody2D == null)
             return;
 
         var targetPos = new Vector3(_targetPosObj.transform.position.x, transform.position.y, 0);
@@ -158,7 +164,7 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!_isvalid || Rigidbody2D == null)
+        if (!IsPlayingState() || !_isvalid || Rigidbody2D == null)
         {
             _wasDescending = false;
             return;
@@ -170,7 +176,7 @@ public class Player : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (!_isvalid || Rigidbody2D == null)
+        if (!IsPlayingState() || !_isvalid || Rigidbody2D == null)
             return;
 
         // BodyRoot 是动态刚体，可能被敌人的实体碰撞横向挤开；玩家没有横向物理输入，
@@ -208,6 +214,9 @@ public class Player : MonoBehaviour
 
     public void ApplyWeaponBuff(WeaponType type, float duration)
     {
+        if (!IsPlayingState())
+            return;
+
         _weaponType = type;
         UpdateMouthSprite();
 
@@ -249,6 +258,9 @@ public class Player : MonoBehaviour
     //接触地面
     public void GroundContact()
     {
+        if (!IsPlayingState())
+            return;
+
         _hasJumpCount = NormalizedMaxJumpCount;
         _isGrounded = true;
         _wasDescending = false;
@@ -259,6 +271,9 @@ public class Player : MonoBehaviour
 
     private void TryJump()
     {
+        if (!IsPlayingState())
+            return;
+
         if (!TryReadJumpInput())
             return;
 
@@ -318,6 +333,9 @@ public class Player : MonoBehaviour
 
     private bool TryReadJumpInput()
     {
+        if (!IsPlayingState())
+            return false;
+
         bool mousePressed = Input.GetMouseButtonDown(0);
         bool keyboardPressed = Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow);
         bool touchPressed = false;
@@ -345,6 +363,9 @@ public class Player : MonoBehaviour
 
     private void TryShoot()
     {
+        if (!IsPlayingState())
+            return;
+
         GameObject prefab;
         float rate;
         switch (_weaponType)

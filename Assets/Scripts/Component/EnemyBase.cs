@@ -23,6 +23,12 @@ public abstract class EnemyBase : MonoBehaviour
     private bool _wasSquashed;
     private Vector2 _deathImpulse;
 
+    private static bool IsPlayingState()
+    {
+        var manager = GameManager.Instance;
+        return manager == null || manager.State == GameState.Playing;
+    }
+
     // 子类生成尸块时读取这次命中的冲量，让一击死亡的敌人保留击退效果。
     protected Vector2 DeathImpulse => _deathImpulse;
     protected Color DeathCorpseTint => _wasSquashed ? SquashedCorpseColor : CorpseColor;
@@ -94,7 +100,7 @@ public abstract class EnemyBase : MonoBehaviour
 
     public void TakeHit(int damage, Vector2 hitImpulse)
     {
-        if (_dead || damage <= 0)
+        if (!IsPlayingState() || _dead || damage <= 0)
             return;
 
         _deathImpulse += hitImpulse;
@@ -109,7 +115,7 @@ public abstract class EnemyBase : MonoBehaviour
     // 下落中的主角踩中敌人时直接压扁，不走普通受击流程。
     public void Squash()
     {
-        if (_dead)
+        if (!IsPlayingState() || _dead)
             return;
 
         _wasSquashed = true;

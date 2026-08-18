@@ -11,15 +11,23 @@ public abstract class ProjectileBase : MonoBehaviour
     private float _frameTimer;
     private int _frameIndex;
     private bool _finished;
+    private bool _hitHandled;
     private Camera _worldCamera;
 
     protected bool IsFinished => _finished;
+
+    private static bool IsPlayingState()
+    {
+        var manager = GameManager.Instance;
+        return manager == null || manager.State == GameState.Playing;
+    }
 
     protected virtual void OnEnable()
     {
         _frameTimer = 0f;
         _frameIndex = 0;
         _finished = false;
+        _hitHandled = false;
         _worldCamera = null;
         if (SpriteRenderer != null && FlipbookFrames != null && FlipbookFrames.Length > 0)
             SpriteRenderer.sprite = FlipbookFrames[0];
@@ -27,6 +35,9 @@ public abstract class ProjectileBase : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (!IsPlayingState())
+            return;
+
         transform.Translate(Vector3.right * (Speed * Time.deltaTime), Space.World);
         AnimateFlipbook();
 
@@ -48,9 +59,13 @@ public abstract class ProjectileBase : MonoBehaviour
 
     protected void OnTriggerEnter2D(Collider2D other)
     {
+        if (_finished || _hitHandled || !IsPlayingState())
+            return;
+
         if (!EnemyTargetResolver.TryResolve(other, out var enemy))
             return;
 
+        _hitHandled = true;
         HandleEnemyHit(enemy);
         Finish();
     }
