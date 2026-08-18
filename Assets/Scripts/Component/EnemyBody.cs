@@ -1,16 +1,6 @@
 using UnityEngine;
 
-// 挂在 BodyRoot 上：碰撞体在这一层，向根节点的 EnemyBase 转发引用（与 PlayerBody 对主角的处理方式一致）
+// 挂在 BodyRoot 上，作为 EnemyBase 查找身体部件和物理渲染入口的标记组件。
 public class EnemyBody : MonoBehaviour
 {
-    public EnemyBase Enemy;
-    public Collider2D Collider;
-
-    private void Awake()
-    {
-        if (Enemy == null)
-            Enemy = GetComponentInParent<EnemyBase>();
-        if (Collider == null)
-            Collider = GetComponent<Collider2D>();
-    }
 }

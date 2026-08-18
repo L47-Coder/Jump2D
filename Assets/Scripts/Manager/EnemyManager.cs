@@ -49,8 +49,8 @@ public class EnemyManager : MonoBehaviour
     private void GenerateEnemyBatch()
     {
         // 随难度推进，单次生成的敌人数量上限逐步提高，保证开局也有连续目标。
-        var camera = Camera.main;
-        if (camera == null)
+        var cameraManager = CameraManager.Instance;
+        if (cameraManager == null || !cameraManager.TryGetSpawnPosition(SpawnAheadDistance, 0f, out var spawnAnchor))
             return;
 
         var validConfigs = EnemyConfigs.FindAll(config => config != null && config.Prefab != null);
@@ -63,15 +63,13 @@ public class EnemyManager : MonoBehaviour
             difficultyT * Mathf.Max(0, AdditionalBatchCountAtMaxDifficulty));
         int count = Random.Range(minimumBatchCount, maxBatch + 1);
 
-        float baseX = camera.transform.position.x + SpawnAheadDistance;
         for (int i = 0; i < count; i++)
         {
             // 高度由预制体内部的 BodyRoot/Shadow 本地位置决定，所有敌人统一从 y=0 生成。
             EnemySpawnConfig config = validConfigs[Random.Range(0, validConfigs.Count)];
-            Vector3 spawnPosition = new Vector3(baseX + i * BatchSpacing, 0f, 0f);
+            Vector3 spawnPosition = spawnAnchor + Vector3.right * (i * BatchSpacing);
             Instantiate(config.Prefab, spawnPosition, Quaternion.identity);
         }
     }
 }
-
 

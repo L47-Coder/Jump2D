@@ -31,37 +31,31 @@ public class Enemy_2 : EnemyBase
         var headRenderer = HeadRoot != null ? HeadRoot.GetComponentInChildren<SpriteRenderer>() : null;
         if (headRenderer != null)
         {
-            EnemyCorpse.Create(
+            SpawnCorpse(
                 "Enemy_2_Head_Corpse",
                 headRenderer,
-                headRenderer.transform.position,
-                HeadCorpseInitialVelocity,
-                HeadCorpseInitialAngularVelocity,
-                HeadCorpseGravityScale,
-                HeadCorpseBounceFactor,
-                HeadCorpseGroundFriction,
-                HeadCorpseLifetime,
-                DeathImpulse,
-                DeathCorpseTint,
-                CorpseSettings);
+                new CorpseLaunchSpec(
+                    HeadCorpseInitialVelocity,
+                    HeadCorpseInitialAngularVelocity,
+                    HeadCorpseGravityScale,
+                    HeadCorpseBounceFactor,
+                    HeadCorpseGroundFriction,
+                    HeadCorpseLifetime));
         }
 
         var bodyRenderer = BodySprite != null ? BodySprite.GetComponent<SpriteRenderer>() : null;
         if (bodyRenderer != null)
         {
-            EnemyCorpse.Create(
+            SpawnCorpse(
                 "Enemy_2_Body_Corpse",
                 bodyRenderer,
-                bodyRenderer.transform.position,
-                BodyCorpseInitialVelocity,
-                BodyCorpseInitialAngularVelocity,
-                BodyCorpseGravityScale,
-                BodyCorpseBounceFactor,
-                BodyCorpseGroundFriction,
-                BodyCorpseLifetime,
-                DeathImpulse,
-                DeathCorpseTint,
-                CorpseSettings);
+                new CorpseLaunchSpec(
+                    BodyCorpseInitialVelocity,
+                    BodyCorpseInitialAngularVelocity,
+                    BodyCorpseGravityScale,
+                    BodyCorpseBounceFactor,
+                    BodyCorpseGroundFriction,
+                    BodyCorpseLifetime));
         }
     }
 }

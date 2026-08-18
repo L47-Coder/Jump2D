@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,35 +5,7 @@ using UnityEngine;
 // 轻量协程缓动工具，避免引入第三方缓动插件
 public static class Tween
 {
-    private static readonly AnimationCurve DefaultEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
     private static readonly Dictionary<Transform, Coroutine> ActivePunches = new();
-
-    public static Coroutine MoveLocal(MonoBehaviour host, Transform target, Vector3 to, float duration, AnimationCurve curve = null)
-    {
-        if (host == null || target == null)
-            return null;
-
-        Vector3 from = target.localPosition;
-        return host.StartCoroutine(Lerp(duration, curve, t => target.localPosition = Vector3.LerpUnclamped(from, to, t)));
-    }
-
-    public static Coroutine Scale(MonoBehaviour host, Transform target, Vector3 to, float duration, AnimationCurve curve = null)
-    {
-        if (host == null || target == null)
-            return null;
-
-        Vector3 from = target.localScale;
-        return host.StartCoroutine(Lerp(duration, curve, t => target.localScale = Vector3.LerpUnclamped(from, to, t)));
-    }
-
-    public static Coroutine Color(MonoBehaviour host, SpriteRenderer target, UnityEngine.Color to, float duration, AnimationCurve curve = null)
-    {
-        if (host == null || target == null)
-            return null;
-
-        UnityEngine.Color from = target.color;
-        return host.StartCoroutine(Lerp(duration, curve, t => target.color = UnityEngine.Color.LerpUnclamped(from, to, t)));
-    }
 
     // 使用目标当前缩放作为 restScale 的便捷重载，适合 UI 文本等没有单独基准缩放的对象。
     public static Coroutine Punch(MonoBehaviour host, Transform target, float scaleMultiplier = 1.2f, float duration = 0.2f)
@@ -60,44 +31,6 @@ public static class Tween
         var routine = host.StartCoroutine(PunchRoutine(target, restScale, scaleMultiplier, duration));
         ActivePunches[target] = routine;
         return routine;
-    }
-
-    public static Coroutine Value(MonoBehaviour host, float from, float to, float duration, Action<float> onUpdate, AnimationCurve curve = null, Action onComplete = null)
-    {
-        if (host == null || onUpdate == null)
-            return null;
-
-        return host.StartCoroutine(ValueRoutine(from, to, duration, onUpdate, curve, onComplete));
-    }
-
-    private static IEnumerator ValueRoutine(float from, float to, float duration, Action<float> onUpdate, AnimationCurve curve, Action onComplete)
-    {
-        curve ??= DefaultEase;
-        duration = Mathf.Max(0f, duration);
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = curve.Evaluate(Mathf.Clamp01(elapsed / duration));
-            onUpdate(Mathf.LerpUnclamped(from, to, t));
-            yield return null;
-        }
-        onUpdate(to);
-        onComplete?.Invoke();
-    }
-
-    private static IEnumerator Lerp(float duration, AnimationCurve curve, Action<float> apply)
-    {
-        curve ??= DefaultEase;
-        duration = Mathf.Max(0f, duration);
-        float elapsed = 0f;
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            apply(curve.Evaluate(Mathf.Clamp01(elapsed / duration)));
-            yield return null;
-        }
-        apply(1f);
     }
 
     private static IEnumerator PunchRoutine(Transform target, Vector3 restScale, float scaleMultiplier, float duration)

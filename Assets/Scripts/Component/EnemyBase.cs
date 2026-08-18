@@ -27,6 +27,32 @@ public abstract class EnemyBase : MonoBehaviour
     protected Vector2 DeathImpulse => _deathImpulse;
     protected Color DeathCorpseTint => _wasSquashed ? SquashedCorpseColor : CorpseColor;
 
+    protected struct CorpseLaunchSpec
+    {
+        public Vector2 InitialVelocity;
+        public float InitialAngularVelocity;
+        public float GravityScale;
+        public float BounceFactor;
+        public float GroundFriction;
+        public float Lifetime;
+
+        public CorpseLaunchSpec(
+            Vector2 initialVelocity,
+            float initialAngularVelocity,
+            float gravityScale,
+            float bounceFactor,
+            float groundFriction,
+            float lifetime)
+        {
+            InitialVelocity = initialVelocity;
+            InitialAngularVelocity = initialAngularVelocity;
+            GravityScale = gravityScale;
+            BounceFactor = bounceFactor;
+            GroundFriction = groundFriction;
+            Lifetime = lifetime;
+        }
+    }
+
     protected virtual void Awake()
     {
         if (Body == null)
@@ -56,9 +82,24 @@ public abstract class EnemyBase : MonoBehaviour
     {
     }
 
-    public void TakeHit(int damage)
+    protected void SpawnCorpse(string corpseName, SpriteRenderer source, CorpseLaunchSpec launch)
     {
-        TakeHit(damage, Vector2.zero);
+        if (source == null)
+            return;
+
+        EnemyCorpse.Create(
+            corpseName,
+            source,
+            source.transform.position,
+            launch.InitialVelocity,
+            launch.InitialAngularVelocity,
+            launch.GravityScale,
+            launch.BounceFactor,
+            launch.GroundFriction,
+            launch.Lifetime,
+            DeathImpulse,
+            DeathCorpseTint,
+            CorpseSettings);
     }
 
     public void TakeHit(int damage, Vector2 hitImpulse)
@@ -93,8 +134,7 @@ public abstract class EnemyBase : MonoBehaviour
 
         _dead = true;
         StopAllCoroutines();
-        foreach (var collider in GetComponentsInChildren<Collider2D>())
-            collider.enabled = false;
+        DisableColliders();
         Destroy(gameObject);
     }
 
@@ -114,10 +154,15 @@ public abstract class EnemyBase : MonoBehaviour
         _dead = true;
         StopAllCoroutines();
         SpawnDeathCorpse();
-        foreach (var collider in GetComponentsInChildren<Collider2D>())
-            collider.enabled = false;
+        DisableColliders();
 
         GameManager.Instance?.AddScore(ScoreValue);
         Destroy(gameObject);
+    }
+
+    private void DisableColliders()
+    {
+        foreach (var collider in GetComponentsInChildren<Collider2D>())
+            collider.enabled = false;
     }
 }

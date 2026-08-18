@@ -982,7 +982,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 700000016}
         m_TargetAssemblyTypeName: PauseController, Assembly-CSharp
-        m_MethodName: OnPauseButtonClicked
+        m_MethodName: OnPauseToggleClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1191,7 +1191,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 700000016}
         m_TargetAssemblyTypeName: PauseController, Assembly-CSharp
-        m_MethodName: OnResumeButtonClicked
+        m_MethodName: OnPauseToggleClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

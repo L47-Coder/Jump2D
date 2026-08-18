@@ -12,7 +12,7 @@ public class CameraManager : MonoBehaviour
     public float DifficultyRampDuration = 90f;
     public float DefaultShakeDuration = 0.15f;
     public float DefaultShakeMagnitude = 0.15f;
-    private bool _isvalid = false;
+    private bool _isValid;
     private float _elapsed = 0f;
     private float _baseSpeed;
     private Vector3 _basePosition;
@@ -32,11 +32,6 @@ public class CameraManager : MonoBehaviour
 
     void Start()
     {
-        if (CameraObj == null && Camera.main != null)
-            CameraObj = Camera.main.gameObject;
-        if (MapManager == null)
-            MapManager = FindObjectOfType<MapManager>();
-
         if (CameraObj == null)
             Debug.LogError("CameraObj is null in CameraManager");
         if (MapManager == null)
@@ -50,16 +45,37 @@ public class CameraManager : MonoBehaviour
         }
 
         _basePosition = CameraObj.transform.position;
-        _isvalid = true;
+        _isValid = true;
+    }
+
+    public bool TryGetPosition(out Vector3 position)
+    {
+        if (!_isValid || CameraObj == null)
+        {
+            position = default;
+            return false;
+        }
+
+        position = CameraObj.transform.position;
+        return true;
+    }
+
+    public bool TryGetSpawnPosition(float aheadDistance, float y, out Vector3 position)
+    {
+        if (!TryGetPosition(out var cameraPosition))
+        {
+            position = default;
+            return false;
+        }
+
+        position = new Vector3(cameraPosition.x + aheadDistance, y, 0f);
+        return true;
     }
 
     void Update()
     {
-        if (!_isvalid)
-        {
-            Debug.LogError("CameraManager is not valid. Cannot update camera.");
+        if (!_isValid)
             return;
-        }
 
         _elapsed += Time.deltaTime;
         float rampDuration = Mathf.Max(0.01f, DifficultyRampDuration);
@@ -78,7 +94,7 @@ public class CameraManager : MonoBehaviour
             duration = DefaultShakeDuration;
         if (magnitude < 0f)
             magnitude = DefaultShakeMagnitude;
-        if (!_isvalid || duration <= 0f || magnitude <= 0f)
+        if (!_isValid || duration <= 0f || magnitude <= 0f)
             return;
 
         if (_shakeRoutine != null)

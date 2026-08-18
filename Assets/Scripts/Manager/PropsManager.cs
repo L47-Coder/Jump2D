@@ -60,10 +60,11 @@ public class PropsManager : MonoBehaviour
 
     private void SpawnProps()
     {
-        if (PropsPrefab == null || Camera.main == null)
+        var cameraManager = CameraManager.Instance;
+        if (PropsPrefab == null || cameraManager == null ||
+            !cameraManager.TryGetSpawnPosition(SpawnAheadDistance, SpawnY, out var spawnPosition))
             return;
 
-        Vector3 spawnPosition = new Vector3(Camera.main.transform.position.x + SpawnAheadDistance, SpawnY, 0);
         GameObject obj = Instantiate(PropsPrefab, spawnPosition, Quaternion.identity);
         var props = obj.GetComponent<Props>();
         if (props != null)
