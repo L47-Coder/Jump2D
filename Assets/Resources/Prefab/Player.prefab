@@ -247,15 +247,16 @@ MonoBehaviour:
   BulletPrefab: {fileID: 100001, guid: 9c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f, type: 3}
   CornBulletPrefab: {fileID: 100101, guid: d2e3f4a5b6c7d8e9f0a1b2c3d4e5f607, type: 3}
   MachineGunFireRate: 9
-  CornFireRate: 1.5
+  CornFireRate: 1.8
   FollowSpeed: 5
-  JumpImpulse: 6.8
+  JumpImpulse: 6.6
   MaxJumpCount: 2
   RisingVelocityThreshold: 3
   RisingGravityScale: 1
-  FallingGravityScale: 5
+  FallingGravityScale: 4.5
   FallingVelocityThreshold: -0.1
   StompBounceImpulse: 4
+  StompInvincibilityDuration: 0.1
   Shadow: {fileID: 0}
   MouthSprite: {fileID: 9222920812648686075}
   DefaultMouthSprite: {fileID: 21300000, guid: fd47523673851174288aa5fb8536845d, type: 3}

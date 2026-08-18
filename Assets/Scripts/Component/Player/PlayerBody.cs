@@ -39,6 +39,10 @@ public class PlayerBody : MonoBehaviour
             return;
         }
 
+        // 踩中敌人后短暂无敌，避免同一帧或紧接着碰到其它敌人而直接死亡。
+        if (Player != null && Player.IsStompProtected)
+            return;
+
         CameraManager.Instance?.Shake();
         GameManager.Instance?.TriggerGameOver();
     }

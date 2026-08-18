@@ -282,7 +282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PropsPrefab: {fileID: 4692500807379441774, guid: a5c1ed7f9112ee34d9674b56a16d3c00, type: 3}
-  SpawnY: 0.5
+  SpawnY: 0
   MinInterval: 6
   MaxInterval: 12
   DifficultyRampDuration: 90

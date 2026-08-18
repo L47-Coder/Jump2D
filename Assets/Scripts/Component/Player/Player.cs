@@ -23,6 +23,7 @@ public class Player : MonoBehaviour
     public float FallingGravityScale = 5f;
     public float FallingVelocityThreshold = -0.1f;
     public float StompBounceImpulse = 4f;
+    public float StompInvincibilityDuration = 0.1f;
     public Transform Shadow;
     public SpriteRenderer MouthSprite;
     public Sprite DefaultMouthSprite;
@@ -40,6 +41,7 @@ public class Player : MonoBehaviour
     private GameObject _targetPosObj;
     private int _hasJumpCount = 2;
     private bool _isGrounded = true;
+    private float _stompInvincibilityUntil;
     private bool _wasDescending;
     private float _shootTimer;
     private float _idleHopTime;
@@ -55,6 +57,7 @@ public class Player : MonoBehaviour
     private Vector3 _mouthRestPosition;
     public bool IsFalling => _isvalid && !_isGrounded && Rigidbody2D != null &&
         (_wasDescending || Rigidbody2D.velocity.y < FallingVelocityThreshold);
+    public bool IsStompProtected => Time.time < _stompInvincibilityUntil;
 
     public void ApplyStompBounce()
     {
@@ -63,6 +66,7 @@ public class Player : MonoBehaviour
 
         Rigidbody2D.velocity = Vector2.zero;
         _isGrounded = false;
+        _stompInvincibilityUntil = Time.time + Mathf.Max(0f, StompInvincibilityDuration);
         _wasDescending = false;
         _idleHopTime = 0f;
         SetIdleVisualOffset(0f);
@@ -415,6 +419,8 @@ public class Player : MonoBehaviour
 
     void OnDisable()
     {
+        _stompInvincibilityUntil = 0f;
+
         if (_weaponRoutine != null)
         {
             StopCoroutine(_weaponRoutine);

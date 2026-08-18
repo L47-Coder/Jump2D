@@ -97,9 +97,9 @@ MonoBehaviour:
     MinimumCircleRadius: 0.12
     BounceImpactThreshold: 0.25
     GroundAngularDamping: 0.62
+  Body: {fileID: 100021601}
   HeadRoot: {fileID: 2680558973985031339}
   BodySprite: {fileID: 6203836315916607404}
-  Body: {fileID: 100021601}
   HeadCorpseInitialVelocity: {x: -1.35, y: 1.45}
   HeadCorpseInitialAngularVelocity: -220
   HeadCorpseGravityScale: 3
@@ -456,7 +456,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0.5}
