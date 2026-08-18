@@ -232,11 +232,11 @@ MonoBehaviour:
   EnemyConfigs:
   - {fileID: 7648483881525841815, guid: ac8ed5ede7198a14f81d6ffe72dc8112, type: 3}
   - {fileID: 2504517725312571520, guid: be54baeb0297d964292b36d58bb456b2, type: 3}
-  GenerateInterval: 1.4
-  MinGenerateInterval: 0.55
+  GenerateInterval: 1.8
+  MinGenerateInterval: 0.8
   BatchSpacing: 1.35
-  MinimumBatchCount: 2
-  AdditionalBatchCountAtMaxDifficulty: 3
+  MinimumBatchCount: 1
+  AdditionalBatchCountAtMaxDifficulty: 2
 --- !u!114 &354557332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263,7 +263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PropsPrefab: {fileID: 4692500807379441774, guid: a5c1ed7f9112ee34d9674b56a16d3c00, type: 3}
-  SpawnY: 0
+  SpawnY: 1.5
   MinInterval: 6
   MaxInterval: 12
   IntervalRandomMinMultiplier: 0.8
