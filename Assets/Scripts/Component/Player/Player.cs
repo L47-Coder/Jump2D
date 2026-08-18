@@ -11,6 +11,13 @@ public class Player : MonoBehaviour
     public GameObject CornBulletPrefab;
     public float MachineGunFireRateMultiplier = 4f;
     public float CornFireInterval = 0.35f;
+    public float FollowSpeed = 5f;
+    public float JumpImpulse = 7f;
+    public int MaxJumpCount = 2;
+    public float RisingVelocityThreshold = 3f;
+    public float RisingGravityScale = 1f;
+    public float FallingGravityScale = 5f;
+    public float FallingVelocityThreshold = -0.1f;
     public SpriteRenderer MouthSprite;
     public Sprite DefaultMouthSprite;
     public Sprite MachineGunMouthSprite;
@@ -21,6 +28,8 @@ public class Player : MonoBehaviour
     public float MouthKickScale = 1.2f;
     public float MouthKickVerticalScale = 0.86f;
     public float MouthKickForward = 0.06f;
+    public float MinimumIdleHopDuration = 0.05f;
+    public float MinimumMouthKickDuration = 0.01f;
     private bool _isvalid = false;
     private GameObject _targetPosObj;
     private int _hasJumpCount = 2;
@@ -36,11 +45,7 @@ public class Player : MonoBehaviour
     private Vector3 _bodyRestPosition;
     private Vector3 _mouthRestScale;
     private Vector3 _mouthRestPosition;
-    private const float FollowSpeed = 5f;
-    private const float JumpImpulse = 7f;
-    private const float RisingVelocityThreshold = 3f;
-    private const float RisingGravityScale = 1f;
-    private const float FallingGravityScale = 5f;
+    public bool IsFalling => _isvalid && !_isGrounded && Rigidbody2D != null && Rigidbody2D.velocity.y < FallingVelocityThreshold;
 
     void Awake()
     {
@@ -65,6 +70,7 @@ public class Player : MonoBehaviour
             return;
         }
 
+        _hasJumpCount = Mathf.Max(0, MaxJumpCount);
         _bodySprite = BodyRoot.transform.Find("BodySprite");
         if (_bodySprite != null)
             _bodyRestPosition = _bodySprite.localPosition;
@@ -193,7 +199,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        float duration = Mathf.Max(0.05f, IdleHopDuration);
+        float duration = Mathf.Max(0.001f, MinimumIdleHopDuration, IdleHopDuration);
         _idleHopTime += Time.deltaTime;
         float phase = Mathf.Clamp01(_idleHopTime / duration);
         SetIdleVisualOffset(Mathf.Sin(phase * Mathf.PI) * Mathf.Max(0f, IdleHopHeight));
@@ -304,7 +310,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator MouthKickRoutine()
     {
-        float duration = Mathf.Max(0.01f, MouthKickDuration);
+        float duration = Mathf.Max(0.001f, MinimumMouthKickDuration, MouthKickDuration);
         float elapsed = 0f;
         while (elapsed < duration)
         {

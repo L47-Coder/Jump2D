@@ -10,9 +10,9 @@ public class Bullet : MonoBehaviour
     public float LifeTime = 3f;
     public int Damage = 1;
     public float KnockbackForce = 1.4f;
+    public float FrameInterval = 0.06f;
     public Action<Bullet> OnRecycle;
 
-    private const float FrameInterval = 0.06f;
     private float _age;
     private float _frameTimer;
     private int _frameIndex;
@@ -44,7 +44,7 @@ public class Bullet : MonoBehaviour
             return;
 
         _frameTimer += Time.deltaTime;
-        if (_frameTimer < FrameInterval)
+        if (_frameTimer < Mathf.Max(0.001f, FrameInterval))
             return;
 
         _frameTimer = 0f;

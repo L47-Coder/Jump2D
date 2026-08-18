@@ -13,9 +13,12 @@ public class CornBullet : MonoBehaviour
     public float ExplosionEffectDuration = 0.24f;
     public int Damage = 99;
     public float ExplosionKnockbackForce = 2.5f;
+    public float ExplosionShakeDuration = 0.08f;
+    public float ExplosionShakeMagnitude = 0.04f;
+    public float FrameInterval = 0.06f;
+    public CornExplosionSettings ExplosionSettings = new CornExplosionSettings();
     public Action<CornBullet> OnRecycle;
 
-    private const float FrameInterval = 0.06f;
     private float _age;
     private float _frameTimer;
     private int _frameIndex;
@@ -47,7 +50,7 @@ public class CornBullet : MonoBehaviour
             return;
 
         _frameTimer += Time.deltaTime;
-        if (_frameTimer < FrameInterval)
+        if (_frameTimer < Mathf.Max(0.001f, FrameInterval))
             return;
 
         _frameTimer = 0f;
@@ -66,8 +69,8 @@ public class CornBullet : MonoBehaviour
         if (_recycled)
             return;
 
-        CornExplosionEffect.Play(transform.position, ExplosionRadius, ExplosionEffectDuration);
-        CameraManager.Instance?.Shake(0.08f, 0.04f);
+        CornExplosionEffect.Play(transform.position, ExplosionRadius, ExplosionEffectDuration, ExplosionSettings);
+        CameraManager.Instance?.Shake(ExplosionShakeDuration, ExplosionShakeMagnitude);
         var hits = Physics2D.OverlapCircleAll(transform.position, ExplosionRadius);
         var hitEnemies = new HashSet<EnemyBase>();
         foreach (var hit in hits)

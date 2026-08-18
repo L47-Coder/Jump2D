@@ -139,8 +139,27 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9adefe8bc6b2b3349bf6332040a62e39, type: 3}
   - {fileID: 21300000, guid: 7d4ccc6c769ae814ea328db691b3eb75, type: 3}
   Speed: 10
-  LifeTime: 2
+  LifeTime: 1.5
   ExplosionRadius: 4
   ExplosionEffectDuration: 0.24
   Damage: 99
   ExplosionKnockbackForce: 2.5
+  ExplosionShakeDuration: 0.08
+  ExplosionShakeMagnitude: 0.04
+  FrameInterval: 0.06
+  ExplosionSettings:
+    RingSegments: 48
+    BurstRays: 12
+    RingStartWidth: 0.14
+    BurstStartWidth: 0.1
+    RingAnimationStartWidth: 0.16
+    RingEndWidth: 0.03
+    StartRadius: 0.15
+    BurstInnerRadius: 0.35
+    BurstOuterRadiusMin: 0.55
+    BurstOuterRadiusMax: 1.08
+    EaseExponent: 2
+    LineEndWidthMultiplier: 0.7
+    BurstEndAlpha: 0
+    RingColor: {r: 1, g: 0.78, b: 0.18, a: 1}
+    BurstColor: {r: 1, g: 0.95, b: 0.5, a: 1}

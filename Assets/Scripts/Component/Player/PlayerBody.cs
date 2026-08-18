@@ -17,18 +17,27 @@ public class PlayerBody : MonoBehaviour
             if (collision.contactCount == 0 || collision.GetContact(0).normal.y > 0.25f)
                 Player?.GroundContact();
         }
-        else if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.GetComponentInParent<EnemyBase>() != null)
-            HandleEnemyContact();
+        else
+            HandleEnemyContact(collision.collider);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Enemy"))
-            HandleEnemyContact();
+        HandleEnemyContact(other);
     }
 
-    private void HandleEnemyContact()
+    private void HandleEnemyContact(Collider2D other)
     {
+        var enemy = other.GetComponentInParent<EnemyBase>();
+        if (enemy == null)
+            return;
+
+        if (Player != null && Player.IsFalling)
+        {
+            enemy.Squash();
+            return;
+        }
+
         CameraManager.Instance?.Shake();
         GameManager.Instance?.TriggerGameOver();
     }

@@ -180,6 +180,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 86bba709b3796f64d8d3c19646fbd49e, type: 3}
   - {fileID: 21300000, guid: 4090d7e47447cfc45aaa7ead86ef730f, type: 3}
   - {fileID: 21300000, guid: ba8d2dcd84723e440b3f03c072b6b73c, type: 3}
+  BackgroundSegmentLength: 13
+  CloudsPerSegment: 2
+  CloudMinY: 0
+  CloudMaxY: 2.5
+  MaxBackgroundCount: 4
 --- !u!114 &354557328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -194,6 +199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetPosObj: {fileID: 1106506306}
   PlayerPrefab: {fileID: 4626888816483339756, guid: 4e6c283df3b00d04d83b92b1f64017a9, type: 3}
+  PlayerSpawnPosition: {x: -3.4, y: -1.8, z: 0}
 --- !u!114 &354557329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,6 +232,8 @@ MonoBehaviour:
   CameraSpeed: 2
   MaxCameraSpeed: 5
   DifficultyRampDuration: 90
+  DefaultShakeDuration: 0.15
+  DefaultShakeMagnitude: 0.15
 --- !u!114 &354557331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,6 +254,9 @@ MonoBehaviour:
   MinGenerateInterval: 0.55
   DifficultyRampDuration: 90
   BatchSpacing: 1.35
+  MinimumBatchCount: 2
+  AdditionalBatchCountAtMaxDifficulty: 3
+  SpawnAheadDistance: 10
 --- !u!114 &354557332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,10 +282,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PropsPrefab: {fileID: 4692500807379441774, guid: a5c1ed7f9112ee34d9674b56a16d3c00, type: 3}
-  SpawnY: 1.2
+  SpawnY: 1
   MinInterval: 8
   MaxInterval: 14
   DifficultyRampDuration: 90
+  IntervalRandomMinMultiplier: 0.8
+  IntervalRandomMaxMultiplier: 1.2
+  SpawnAheadDistance: 10
+  CornSpawnChance: 0.5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -763,6 +778,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ScoreText: {fileID: 700000022}
+  ScorePunchScale: 1.3
+  ScorePunchDuration: 0.2
 --- !u!114 &700000016
 MonoBehaviour:
   m_ObjectHideFlags: 0

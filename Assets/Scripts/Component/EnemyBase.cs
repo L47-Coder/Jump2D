@@ -8,16 +8,24 @@ public abstract class EnemyBase : MonoBehaviour
     public int ScoreValue = 10;
     public float BobAmplitude = 0.06f;
     public float BobSpeed = 2f;
+    public float LifeTime = 12f;
+    public Color CorpseColor = Color.white;
+    public Color SquashedCorpseColor = new(1f, 0f, 0f, 1f);
+    public Color HitFlashColor = new(1f, 0.35f, 0.35f, 1f);
+    public float HitFlashDuration = 0.08f;
+    public EnemyCorpseSettings CorpseSettings = new EnemyCorpseSettings();
     public EnemyBody Body;
 
     protected SpriteRenderer[] Renderers;
     private Color[] _originalColors;
     private int _health;
     private bool _dead;
+    private bool _wasSquashed;
     private Vector2 _deathImpulse;
 
     // 子类生成尸块时读取这次命中的冲量，让一击死亡的敌人保留击退效果。
     protected Vector2 DeathImpulse => _deathImpulse;
+    protected Color DeathCorpseTint => _wasSquashed ? SquashedCorpseColor : CorpseColor;
 
     protected virtual void Awake()
     {
@@ -33,6 +41,8 @@ public abstract class EnemyBase : MonoBehaviour
     protected virtual void Start()
     {
         StartIdleBob();
+        if (LifeTime > 0f)
+            StartCoroutine(LifeTimeRoutine());
     }
 
     // 子类可覆盖以对多个部件（如敌人2的头/身体）做异步浮动
@@ -65,12 +75,34 @@ public abstract class EnemyBase : MonoBehaviour
             Die();
     }
 
+    // 下落中的主角踩中敌人时直接压扁，不走普通受击流程。
+    public void Squash()
+    {
+        if (_dead)
+            return;
+
+        _wasSquashed = true;
+        Die();
+    }
+
+    private IEnumerator LifeTimeRoutine()
+    {
+        yield return new WaitForSeconds(LifeTime);
+        if (_dead)
+            yield break;
+
+        _dead = true;
+        StopAllCoroutines();
+        foreach (var collider in GetComponentsInChildren<Collider2D>())
+            collider.enabled = false;
+        Destroy(gameObject);
+    }
+
     private IEnumerator HitFlashRoutine()
     {
-        Color flash = new(1f, 0.35f, 0.35f);
         foreach (var r in Renderers)
-            r.color = flash;
-        yield return new WaitForSeconds(0.08f);
+            r.color = HitFlashColor;
+        yield return new WaitForSeconds(Mathf.Max(0f, HitFlashDuration));
         if (_dead)
             yield break;
         for (int i = 0; i < Renderers.Length; i++)

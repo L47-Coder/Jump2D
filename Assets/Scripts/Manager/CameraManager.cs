@@ -10,6 +10,8 @@ public class CameraManager : MonoBehaviour
     public float CameraSpeed;
     public float MaxCameraSpeed = 5f;
     public float DifficultyRampDuration = 90f;
+    public float DefaultShakeDuration = 0.15f;
+    public float DefaultShakeMagnitude = 0.15f;
     private bool _isvalid = false;
     private float _elapsed = 0f;
     private float _baseSpeed;
@@ -70,8 +72,12 @@ public class CameraManager : MonoBehaviour
     }
 
     // 命中反馈用的小幅屏幕震动，使用非缩放时间以便在暂停/结算瞬间也能播放
-    public void Shake(float duration = 0.15f, float magnitude = 0.15f)
+    public void Shake(float duration = -1f, float magnitude = -1f)
     {
+        if (duration < 0f)
+            duration = DefaultShakeDuration;
+        if (magnitude < 0f)
+            magnitude = DefaultShakeMagnitude;
         if (!_isvalid || duration <= 0f || magnitude <= 0f)
             return;
 

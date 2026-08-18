@@ -4,10 +4,14 @@ using UnityEngine;
 public class PropsManager : MonoBehaviour
 {
     public GameObject PropsPrefab;
-    public float SpawnY = 1.2f;
+    public float SpawnY = 1f;
     public float MinInterval = 8f;
     public float MaxInterval = 14f;
     public float DifficultyRampDuration = 90f;
+    public float IntervalRandomMinMultiplier = 0.8f;
+    public float IntervalRandomMaxMultiplier = 1.2f;
+    public float SpawnAheadDistance = 10f;
+    public float CornSpawnChance = 0.5f;
     private float _elapsed;
     private float _nextSpawnTime;
     private bool _isValid;
@@ -49,7 +53,9 @@ public class PropsManager : MonoBehaviour
         float minInterval = Mathf.Max(0.1f, Mathf.Min(MinInterval, MaxInterval));
         float maxInterval = Mathf.Max(minInterval, Mathf.Max(MinInterval, MaxInterval));
         float interval = Mathf.Lerp(maxInterval, minInterval, t);
-        _nextSpawnTime = Time.time + Random.Range(interval * 0.8f, interval * 1.2f);
+        float randomMin = Mathf.Min(IntervalRandomMinMultiplier, IntervalRandomMaxMultiplier);
+        float randomMax = Mathf.Max(IntervalRandomMinMultiplier, IntervalRandomMaxMultiplier);
+        _nextSpawnTime = Time.time + Random.Range(interval * randomMin, interval * randomMax);
     }
 
     private void SpawnProps()
@@ -57,12 +63,14 @@ public class PropsManager : MonoBehaviour
         if (PropsPrefab == null || Camera.main == null)
             return;
 
-        Vector3 spawnPosition = new Vector3(Camera.main.transform.position.x + 10f, SpawnY, 0);
+        Vector3 spawnPosition = new Vector3(Camera.main.transform.position.x + SpawnAheadDistance, SpawnY, 0);
         GameObject obj = Instantiate(PropsPrefab, spawnPosition, Quaternion.identity);
         var props = obj.GetComponent<Props>();
         if (props != null)
         {
-            WeaponType type = Random.value < 0.5f ? WeaponType.MachineGun : WeaponType.Corn;
+            WeaponType type = Random.value < Mathf.Clamp01(CornSpawnChance)
+                ? WeaponType.Corn
+                : WeaponType.MachineGun;
             props.SetWeaponType(type);
         }
     }

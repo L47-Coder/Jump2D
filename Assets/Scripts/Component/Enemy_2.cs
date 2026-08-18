@@ -4,6 +4,18 @@ public class Enemy_2 : EnemyBase
 {
     public Transform HeadRoot;
     public Transform BodySprite;
+    public Vector2 HeadCorpseInitialVelocity = new(-1.35f, 1.45f);
+    public float HeadCorpseInitialAngularVelocity = -220f;
+    public float HeadCorpseGravityScale = 3f;
+    public float HeadCorpseBounceFactor = 0.2f;
+    public float HeadCorpseGroundFriction = 0.86f;
+    public float HeadCorpseLifetime = 5f;
+    public Vector2 BodyCorpseInitialVelocity = new(1.05f, 1.05f);
+    public float BodyCorpseInitialAngularVelocity = 170f;
+    public float BodyCorpseGravityScale = 3f;
+    public float BodyCorpseBounceFactor = 0.2f;
+    public float BodyCorpseGroundFriction = 0.86f;
+    public float BodyCorpseLifetime = 5f;
 
     // 头部与身体略微异步浮动，看起来更生动
     protected override void StartIdleBob()
@@ -23,13 +35,15 @@ public class Enemy_2 : EnemyBase
                 "Enemy_2_Head_Corpse",
                 headRenderer,
                 headRenderer.transform.position,
-                new Vector2(-1.35f, 1.45f),
-                -220f,
-                3f,
-                0.2f,
-                0.86f,
-                5f,
-                DeathImpulse);
+                HeadCorpseInitialVelocity,
+                HeadCorpseInitialAngularVelocity,
+                HeadCorpseGravityScale,
+                HeadCorpseBounceFactor,
+                HeadCorpseGroundFriction,
+                HeadCorpseLifetime,
+                DeathImpulse,
+                DeathCorpseTint,
+                CorpseSettings);
         }
 
         var bodyRenderer = BodySprite != null ? BodySprite.GetComponent<SpriteRenderer>() : null;
@@ -39,13 +53,15 @@ public class Enemy_2 : EnemyBase
                 "Enemy_2_Body_Corpse",
                 bodyRenderer,
                 bodyRenderer.transform.position,
-                new Vector2(1.05f, 1.05f),
-                170f,
-                3f,
-                0.2f,
-                0.86f,
-                5f,
-                DeathImpulse);
+                BodyCorpseInitialVelocity,
+                BodyCorpseInitialAngularVelocity,
+                BodyCorpseGravityScale,
+                BodyCorpseBounceFactor,
+                BodyCorpseGroundFriction,
+                BodyCorpseLifetime,
+                DeathImpulse,
+                DeathCorpseTint,
+                CorpseSettings);
         }
     }
 }

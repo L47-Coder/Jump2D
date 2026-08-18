@@ -5,6 +5,8 @@ using UnityEngine.UI;
 public class ScoreHUD : MonoBehaviour
 {
     public Text ScoreText;
+    public float ScorePunchScale = 1.3f;
+    public float ScorePunchDuration = 0.2f;
     private GameManager _subscribedManager;
     private Vector3 _restScale = Vector3.one;
 
@@ -40,7 +42,7 @@ public class ScoreHUD : MonoBehaviour
             return;
 
         ScoreText.text = score.ToString();
-        Tween.Punch(this, ScoreText.transform, _restScale, 1.3f, 0.2f);
+        Tween.Punch(this, ScoreText.transform, _restScale, ScorePunchScale, ScorePunchDuration);
     }
 
     private void TrySubscribe()

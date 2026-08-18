@@ -82,9 +82,36 @@ MonoBehaviour:
   ScoreValue: 10
   BobAmplitude: 0.06
   BobSpeed: 2
+  LifeTime: 12
+  CorpseColor: {r: 1, g: 1, b: 1, a: 1}
+  SquashedCorpseColor: {r: 1, g: 0, b: 0, a: 1}
+  HitFlashColor: {r: 1, g: 0.35, b: 0.35, a: 1}
+  HitFlashDuration: 0.08
+  CorpseSettings:
+    Mass: 0.65
+    LinearDrag: 0.08
+    AngularDrag: 0.25
+    RandomImpulseMin: 0.35
+    RandomImpulseMax: 1.05
+    CircleRadiusScale: 0.34
+    MinimumCircleRadius: 0.12
+    BounceImpactThreshold: 0.25
+    GroundAngularDamping: 0.62
   HeadRoot: {fileID: 2680558973985031339}
   BodySprite: {fileID: 6203836315916607404}
   Body: {fileID: 100021601}
+  HeadCorpseInitialVelocity: {x: -1.35, y: 1.45}
+  HeadCorpseInitialAngularVelocity: -220
+  HeadCorpseGravityScale: 3
+  HeadCorpseBounceFactor: 0.2
+  HeadCorpseGroundFriction: 0.86
+  HeadCorpseLifetime: 5
+  BodyCorpseInitialVelocity: {x: 1.05, y: 1.05}
+  BodyCorpseInitialAngularVelocity: 170
+  BodyCorpseGravityScale: 3
+  BodyCorpseBounceFactor: 0.2
+  BodyCorpseGroundFriction: 0.86
+  BodyCorpseLifetime: 5
 --- !u!1 &3687023524122513794
 GameObject:
   m_ObjectHideFlags: 0

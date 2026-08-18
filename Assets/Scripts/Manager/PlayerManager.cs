@@ -4,6 +4,7 @@ public class PlayerManager : MonoBehaviour
 {
     public GameObject TargetPosObj;
     public GameObject PlayerPrefab;
+    public Vector3 PlayerSpawnPosition = new(-3.4f, -1.8f, 0f);
     private bool _isvalid = false;
     void Awake()
     {
@@ -22,7 +23,7 @@ public class PlayerManager : MonoBehaviour
             return;
         }
 
-        var obj = Instantiate(PlayerPrefab, new Vector3(-3.4f, -1.8f, 0), Quaternion.identity);
+        var obj = Instantiate(PlayerPrefab, PlayerSpawnPosition, Quaternion.identity);
         var player = obj.GetComponent<Player>();
         if (player == null)
         {

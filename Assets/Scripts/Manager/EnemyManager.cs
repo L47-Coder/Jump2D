@@ -15,6 +15,9 @@ public class EnemyManager : MonoBehaviour
     public float MinGenerateInterval = 0.55f;
     public float DifficultyRampDuration = 90f;
     public float BatchSpacing = 1.35f;
+    public int MinimumBatchCount = 2;
+    public int AdditionalBatchCountAtMaxDifficulty = 3;
+    public float SpawnAheadDistance = 10f;
     private float _lastGenerateTime = 0f;
     private float _elapsed = 0f;
     private bool _isValid;
@@ -59,10 +62,12 @@ public class EnemyManager : MonoBehaviour
             return;
 
         float difficultyT = Mathf.Clamp01(_elapsed / Mathf.Max(0.01f, DifficultyRampDuration));
-        int maxBatch = 2 + Mathf.FloorToInt(difficultyT * 3f);
-        int count = Random.Range(2, maxBatch + 1);
+        int minimumBatchCount = Mathf.Max(1, MinimumBatchCount);
+        int maxBatch = minimumBatchCount + Mathf.FloorToInt(
+            difficultyT * Mathf.Max(0, AdditionalBatchCountAtMaxDifficulty));
+        int count = Random.Range(minimumBatchCount, maxBatch + 1);
 
-        float baseX = camera.transform.position.x + 10f;
+        float baseX = camera.transform.position.x + SpawnAheadDistance;
         for (int i = 0; i < count; i++)
         {
             // 高度由预制体内部的 BodyRoot/Shadow 本地位置决定，所有敌人统一从 y=0 生成。
