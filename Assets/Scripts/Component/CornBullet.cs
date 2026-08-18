@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,19 +16,17 @@ public class CornBullet : MonoBehaviour
     public float ExplosionShakeMagnitude = 0.04f;
     public float FrameInterval = 0.06f;
     public CornExplosionSettings ExplosionSettings = new CornExplosionSettings();
-    public Action<CornBullet> OnRecycle;
-
     private float _age;
     private float _frameTimer;
     private int _frameIndex;
-    private bool _recycled;
+    private bool _finished;
 
     void OnEnable()
     {
         _age = 0f;
         _frameTimer = 0f;
         _frameIndex = 0;
-        _recycled = false;
+        _finished = false;
         if (SpriteRenderer != null && FlipbookFrames != null && FlipbookFrames.Length > 0)
             SpriteRenderer.sprite = FlipbookFrames[0];
     }
@@ -41,7 +38,7 @@ public class CornBullet : MonoBehaviour
 
         _age += Time.deltaTime;
         if (_age >= LifeTime)
-            Recycle();
+            Finish();
     }
 
     private void AnimateFlipbook()
@@ -66,7 +63,7 @@ public class CornBullet : MonoBehaviour
 
     private void Explode()
     {
-        if (_recycled)
+        if (_finished)
             return;
 
         CornExplosionEffect.Play(transform.position, ExplosionRadius, ExplosionEffectDuration, ExplosionSettings);
@@ -89,18 +86,15 @@ public class CornBullet : MonoBehaviour
 
             enemy.TakeHit(Damage, direction * Mathf.Max(0f, ExplosionKnockbackForce));
         }
-        Recycle();
+        Finish();
     }
 
-    private void Recycle()
+    private void Finish()
     {
-        if (_recycled)
+        if (_finished)
             return;
 
-        _recycled = true;
-        if (OnRecycle != null)
-            OnRecycle(this);
-        else
-            Destroy(gameObject);
+        _finished = true;
+        Destroy(gameObject);
     }
 }

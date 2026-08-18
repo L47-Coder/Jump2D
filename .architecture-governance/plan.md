@@ -1,11 +1,11 @@
-# Governance Round R0003
-- Scope / why now: Delete the unreferenced `ObjectPool` helper after the dependency/composition cleanup exposed it as an isolated common-layer capability with no runtime owner.
-- Findings: AG-0003 (validated); AG-0001 and AG-0002 are validated.
-- Current problem: `ObjectPool.cs` declares a public pool with prewarm/get/release behavior, but repository-wide evidence finds no caller, scene/Prefab reference, package consumer, or assembly-definition boundary. Runtime projectiles are created by `Player`, `EnemyManager`, and `PropsManager` with direct `Instantiate`; their separate `OnRecycle` hooks are not being migrated in this round.
-- Entropy to remove: One unreachable common-layer abstraction and its Unity `.meta` asset; no runtime branch or serialized field is changed.
-- Invariants: Preserve all active projectile, enemy, prop, map, UI, and game-state behavior; preserve the public `Bullet.OnRecycle`/`CornBullet.OnRecycle` hooks and direct instantiate/destroy timing; do not change any scene/Prefab or package data.
-- Implementation: Delete `Assets/Scripts/Common/ObjectPool.cs` and `Assets/Scripts/Common/ObjectPool.cs.meta` only.
-- Validation: Targeted reference search returns no `ObjectPool` outside generated/ignored files; an ignored `Temp` validation copy without Library/user data completed Unity 2022.3.60f1c1 batchmode import and native script compilation; `dotnet build Assembly-CSharp.csproj --nologo` in that copy passes with 0 warnings/errors; `git diff --check` passes; the complete diff contains only the planned source/meta deletion and governance metadata.
-- Rollback: Revert the single R0003 commit; the R0002 checkpoint at 60da442 remains intact.
-- Out of scope: Projectile pooling migration, `OnRecycle` public-hook removal, gameplay changes, asset redesign, package upgrades, and unrelated bug fixes.
-- Next action: Stage only the owned files, review the staged diff, and create the R0003 checkpoint commit.
+# Governance Round R0004
+- Scope / why now: Remove the orphaned projectile recycle callbacks after R0003 deleted the only pool abstraction; the repository evidence shows no lifecycle owner for these public seams.
+- Findings: AG-0004 validated; AG-0001, AG-0002, and AG-0003 are validated.
+- Current problem: `Bullet.OnRecycle` and `CornBullet.OnRecycle` are public `Action` fields that are never assigned or read by any external caller. Each projectile only checks its own callback field before falling back to `Destroy`, so the callback branch cannot be reached through a repository-supported contract.
+- Entropy to remove: Two unreachable callback fields, their unused `System` imports, and callback branches that imply a missing pool owner; rename the private terminal state/method to describe actual completion rather than recycling.
+- Invariants: Preserve projectile movement, flipbook animation, collision damage/knockback, explosion effects and camera shake, lifetime timing, one-shot guards, and direct terminal destruction. Do not change scene/Prefab serialization, spawning, physics, or gameplay tuning.
+- Implementation: In `Assets/Scripts/Component/Bullet.cs` and `Assets/Scripts/Component/CornBullet.cs`, remove `using System`, the `OnRecycle` fields, and the callback branch; rename `_recycled` to `_finished` and `Recycle()` to `Finish()`, retaining the existing call sites and direct `Destroy(gameObject)` terminal behavior.
+- Validation: No exact `OnRecycle` or `Recycle(` references remain outside generated/ignored files; the refreshed ignored R0003 isolated copy completed Unity 2022.3.60f1c1 batchmode import/script compilation with return code 0; `dotnet build Assembly-CSharp.csproj --nologo` passes with 0 warnings/errors; `git diff --check` passes; the diff contains only the planned two source files and governance metadata. Unity emitted non-fatal licensing/network messages in the isolated environment, with no import or compiler failure.
+- Rollback: Revert the single R0004 commit; the R0003 checkpoint at c3c6708 remains intact.
+- Out of scope: Add a new pool, change projectile physics/timing, redesign Prefabs, alter spawning, upgrade packages, or fix unrelated gameplay/UI issues.
+- Next action: Commit the R0004 checkpoint, then pause the governance run as requested; resume only after explicit user direction.
