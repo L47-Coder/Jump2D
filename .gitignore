@@ -1,0 +1,59 @@
+# Unity generated folders
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Asset Store tools generated data
+Assets/AssetStoreTools*
+
+# Visual Studio / Rider / generated IDE files
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.sln.iml
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.suo
+*.tmp
+*.mdb
+*.pdb
+*.opendb
+*.VC.db
+
+# Keep shared VS Code project settings under version control
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Unity build and export artifacts
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+*.x86
+*.x86_64
+*.iOS
+*.ipa
+
+# Crash reporting
+crashlytics-build.properties
+
+# Addressables generated content
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini
