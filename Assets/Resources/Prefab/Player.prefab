@@ -256,7 +256,7 @@ MonoBehaviour:
   FallingGravityScale: 4.5
   FallingVelocityThreshold: -0.1
   StompBounceImpulse: 4
-  StompInvincibilityDuration: 0.1
+  StompInvincibilityDuration: 0.2
   Shadow: {fileID: 0}
   MouthSprite: {fileID: 9222920812648686075}
   DefaultMouthSprite: {fileID: 21300000, guid: fd47523673851174288aa5fb8536845d, type: 3}

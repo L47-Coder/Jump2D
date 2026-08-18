@@ -12,6 +12,12 @@ public class CornBullet : ProjectileBase
     public float ExplosionShakeMagnitude = 0.04f;
     public CornExplosionSettings ExplosionSettings = new CornExplosionSettings();
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        AudioManager.PlaySfx(SfxId.ShootCorn);
+    }
+
     protected override void HandleEnemyHit(EnemyBase enemy)
     {
         Explode();
@@ -22,6 +28,7 @@ public class CornBullet : ProjectileBase
         if (IsFinished)
             return;
 
+        AudioManager.PlaySfx(SfxId.Explosion);
         CornExplosionEffect.Play(transform.position, ExplosionRadius, ExplosionEffectDuration, ExplosionSettings);
         CameraManager.Instance?.Shake(ExplosionShakeDuration, ExplosionShakeMagnitude);
         var hits = Physics2D.OverlapCircleAll(transform.position, ExplosionRadius);

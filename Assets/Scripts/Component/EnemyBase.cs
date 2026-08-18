@@ -143,6 +143,7 @@ public abstract class EnemyBase : MonoBehaviour
     {
         _dead = true;
         StopAllCoroutines();
+        AudioManager.PlaySfx(SfxId.EnemyDeath);
         SpawnDeathCorpse();
         DisableColliders();
 

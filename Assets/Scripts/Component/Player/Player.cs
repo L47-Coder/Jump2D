@@ -271,6 +271,7 @@ public class Player : MonoBehaviour
             _wasDescending = false;
             _idleHopTime = 0f;
             SetIdleVisualOffset(0f);
+            AudioManager.PlaySfx(SfxId.Jump);
         }
     }
 
@@ -373,6 +374,12 @@ public class Player : MonoBehaviour
         _shootTimer = 0f;
         Vector3 spawnPosition = MouthSprite != null ? MouthSprite.transform.position : transform.position;
         Instantiate(prefab, spawnPosition, Quaternion.identity);
+        if (_weaponType != WeaponType.Corn)
+        {
+            AudioManager.PlaySfx(_weaponType == WeaponType.MachineGun
+                ? SfxId.ShootMachineGun
+                : SfxId.ShootPea);
+        }
         TriggerMouthKick();
     }
 
@@ -438,4 +445,3 @@ public class Player : MonoBehaviour
         }
     }
 }
-

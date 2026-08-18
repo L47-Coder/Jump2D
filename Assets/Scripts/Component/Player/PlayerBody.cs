@@ -42,7 +42,11 @@ public class PlayerBody : MonoBehaviour
         if (Player != null && Player.IsStompProtected)
             return;
 
+        if (GameManager.Instance != null && GameManager.Instance.State == GameState.GameOver)
+            return;
+
         CameraManager.Instance?.Shake();
+        AudioManager.PlaySfx(SfxId.PlayerHurt);
         GameManager.Instance?.TriggerGameOver();
     }
 }

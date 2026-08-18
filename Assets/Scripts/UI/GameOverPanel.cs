@@ -7,7 +7,11 @@ public class GameOverPanel : GameManagerBinding
     public GameObject Panel;
     public Text FinalScoreText;
 
-    public void OnRestartButtonClicked() => Manager?.Restart();
+    public void OnRestartButtonClicked()
+    {
+        AudioManager.PlaySfx(SfxId.UiClick);
+        Manager?.Restart();
+    }
 
     private void HandleGameOver()
     {

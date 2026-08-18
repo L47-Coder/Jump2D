@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8beaf4d02f5148ddb692a543baf1d4e6, type: 3}
+  m_Name: AudioSfxLibrary
+  m_EditorClassIdentifier:
+  _entries:
+  - Id: 0
+    ResourcePath: Audio/SFX/sfx_jump
+    Volume: 0.58
+    PitchMin: 0.96
+    PitchMax: 1.04
+  - Id: 1
+    ResourcePath: Audio/SFX/sfx_shoot_pea
+    Volume: 0.58
+    PitchMin: 0.98
+    PitchMax: 1.04
+  - Id: 2
+    ResourcePath: Audio/SFX/sfx_shoot_machinegun
+    Volume: 0.58
+    PitchMin: 0.9
+    PitchMax: 0.98
+  - Id: 3
+    ResourcePath: Audio/SFX/sfx_shoot_corn
+    Volume: 0.58
+    PitchMin: 0.92
+    PitchMax: 1
+  - Id: 4
+    ResourcePath: Audio/SFX/sfx_projectile_hit
+    Volume: 0.58
+    PitchMin: 0.95
+    PitchMax: 1.05
+  - Id: 5
+    ResourcePath: Audio/SFX/sfx_enemy_death
+    Volume: 0.58
+    PitchMin: 0.92
+    PitchMax: 1
+  - Id: 6
+    ResourcePath: Audio/SFX/sfx_weapon_pickup
+    Volume: 0.58
+    PitchMin: 0.98
+    PitchMax: 1.02
+  - Id: 7
+    ResourcePath: Audio/SFX/sfx_explosion
+    Volume: 0.58
+    PitchMin: 0.94
+    PitchMax: 1
+  - Id: 8
+    ResourcePath: Audio/SFX/sfx_player_hurt
+    Volume: 0.58
+    PitchMin: 0.94
+    PitchMax: 1.02
+  - Id: 9
+    ResourcePath: Audio/SFX/sfx_game_over
+    Volume: 0.58
+    PitchMin: 0.98
+    PitchMax: 1.02
+  - Id: 10
+    ResourcePath: Audio/SFX/sfx_ui_click
+    Volume: 0.58
+    PitchMin: 0.98
+    PitchMax: 1.02
+  - Id: 11
+    ResourcePath: Audio/SFX/sfx_pause
+    Volume: 0.58
+    PitchMin: 0.98
+    PitchMax: 1.02
+  - Id: 12
+    ResourcePath: Audio/SFX/sfx_resume
+    Volume: 0.58
+    PitchMin: 0.98
+    PitchMax: 1.02

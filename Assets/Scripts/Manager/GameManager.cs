@@ -58,6 +58,7 @@ public class GameManager : MonoBehaviour
 
         State = GameState.GameOver;
         Time.timeScale = 0f;
+        AudioManager.PlaySfx(SfxId.GameOver);
         OnGameOver?.Invoke();
     }
 
@@ -70,12 +71,14 @@ public class GameManager : MonoBehaviour
         {
             State = GameState.Paused;
             Time.timeScale = 0f;
+            AudioManager.PlaySfx(SfxId.Pause);
             OnPauseChanged?.Invoke(true);
         }
         else
         {
             State = GameState.Playing;
             Time.timeScale = 1f;
+            AudioManager.PlaySfx(SfxId.Resume);
             OnPauseChanged?.Invoke(false);
         }
     }

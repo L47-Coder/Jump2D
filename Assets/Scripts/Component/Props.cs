@@ -32,6 +32,7 @@ public class Props : MonoBehaviour
             return;
 
         player.ApplyWeaponBuff(_weaponType, BuffDuration);
+        AudioManager.PlaySfx(SfxId.WeaponPickup);
         Destroy(gameObject);
     }
 }
