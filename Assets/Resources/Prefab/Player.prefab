@@ -249,7 +249,7 @@ MonoBehaviour:
   MachineGunFireRate: 4
   CornFireRate: 1.5
   FollowSpeed: 5
-  JumpImpulse: 7
+  JumpImpulse: 6.8
   MaxJumpCount: 2
   RisingVelocityThreshold: 3
   RisingGravityScale: 1
