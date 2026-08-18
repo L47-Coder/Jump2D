@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-// 沿世界坐标水平飞行的普通子弹，命中敌人造成伤害后回收
+// 沿世界坐标水平飞行的普通子弹，命中敌人造成伤害后销毁
 public class Bullet : MonoBehaviour
 {
     public SpriteRenderer SpriteRenderer;
@@ -11,19 +10,17 @@ public class Bullet : MonoBehaviour
     public int Damage = 1;
     public float KnockbackForce = 1.4f;
     public float FrameInterval = 0.06f;
-    public Action<Bullet> OnRecycle;
-
     private float _age;
     private float _frameTimer;
     private int _frameIndex;
-    private bool _recycled;
+    private bool _finished;
 
     void OnEnable()
     {
         _age = 0f;
         _frameTimer = 0f;
         _frameIndex = 0;
-        _recycled = false;
+        _finished = false;
         if (SpriteRenderer != null && FlipbookFrames != null && FlipbookFrames.Length > 0)
             SpriteRenderer.sprite = FlipbookFrames[0];
     }
@@ -35,7 +32,7 @@ public class Bullet : MonoBehaviour
 
         _age += Time.deltaTime;
         if (_age >= LifeTime)
-            Recycle();
+            Finish();
     }
 
     private void AnimateFlipbook()
@@ -60,18 +57,15 @@ public class Bullet : MonoBehaviour
         var enemy = other.GetComponentInParent<EnemyBase>();
         Vector2 direction = Speed < 0f ? Vector2.left : Vector2.right;
         enemy?.TakeHit(Damage, direction * Mathf.Max(0f, KnockbackForce));
-        Recycle();
+        Finish();
     }
 
-    private void Recycle()
+    private void Finish()
     {
-        if (_recycled)
+        if (_finished)
             return;
 
-        _recycled = true;
-        if (OnRecycle != null)
-            OnRecycle(this);
-        else
-            Destroy(gameObject);
+        _finished = true;
+        Destroy(gameObject);
     }
 }
