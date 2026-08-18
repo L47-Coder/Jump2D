@@ -27,7 +27,7 @@ public abstract class EnemyBase : MonoBehaviour
     protected Vector2 DeathImpulse => _deathImpulse;
     protected Color DeathCorpseTint => _wasSquashed ? SquashedCorpseColor : CorpseColor;
 
-    protected struct CorpseLaunchSpec
+    protected internal struct CorpseLaunchSpec
     {
         public Vector2 InitialVelocity;
         public float InitialAngularVelocity;
@@ -72,15 +72,10 @@ public abstract class EnemyBase : MonoBehaviour
     }
 
     // 子类可覆盖以对多个部件（如敌人2的头/身体）做异步浮动
-    protected virtual void StartIdleBob()
-    {
-        Tween.PingPongLocalY(this, transform, BobAmplitude, BobSpeed);
-    }
+    protected abstract void StartIdleBob();
 
     // 子类可生成独立的物理尸体；原敌人随后立即销毁并计分。
-    protected virtual void SpawnDeathCorpse()
-    {
-    }
+    protected abstract void SpawnDeathCorpse();
 
     protected void SpawnCorpse(string corpseName, SpriteRenderer source, CorpseLaunchSpec launch)
     {
@@ -91,12 +86,7 @@ public abstract class EnemyBase : MonoBehaviour
             corpseName,
             source,
             source.transform.position,
-            launch.InitialVelocity,
-            launch.InitialAngularVelocity,
-            launch.GravityScale,
-            launch.BounceFactor,
-            launch.GroundFriction,
-            launch.Lifetime,
+            launch,
             DeathImpulse,
             DeathCorpseTint,
             CorpseSettings);

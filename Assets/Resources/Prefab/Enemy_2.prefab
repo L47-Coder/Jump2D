@@ -97,7 +97,6 @@ MonoBehaviour:
     MinimumCircleRadius: 0.12
     BounceImpactThreshold: 0.25
     GroundAngularDamping: 0.62
-  Body: {fileID: 100021601}
   HeadRoot: {fileID: 2680558973985031339}
   BodySprite: {fileID: 6203836315916607404}
   HeadCorpseInitialVelocity: {x: -1.35, y: 1.45}

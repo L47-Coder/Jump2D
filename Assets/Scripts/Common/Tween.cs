@@ -7,15 +7,6 @@ public static class Tween
 {
     private static readonly Dictionary<Transform, Coroutine> ActivePunches = new();
 
-    // 使用目标当前缩放作为 restScale 的便捷重载，适合 UI 文本等没有单独基准缩放的对象。
-    public static Coroutine Punch(MonoBehaviour host, Transform target, float scaleMultiplier = 1.2f, float duration = 0.2f)
-    {
-        if (target == null)
-            return null;
-
-        return Punch(host, target, target.localScale, scaleMultiplier, duration);
-    }
-
     // 缩放的“弹一下”反馈：先放大/缩小再回落到 restScale。重复调用会先取消上一次，避免缩放不断叠加
     public static Coroutine Punch(MonoBehaviour host, Transform target, Vector3 restScale, float scaleMultiplier = 1.2f, float duration = 0.2f)
     {

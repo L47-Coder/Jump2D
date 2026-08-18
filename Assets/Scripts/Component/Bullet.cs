@@ -6,13 +6,9 @@ public class Bullet : ProjectileBase
     public int Damage = 1;
     public float KnockbackForce = 1.4f;
 
-    private void OnTriggerEnter2D(Collider2D other)
+    protected override void HandleEnemyHit(EnemyBase enemy)
     {
-        if (!EnemyTargetResolver.TryResolve(other, out var enemy))
-            return;
-
         Vector2 direction = Speed < 0f ? Vector2.left : Vector2.right;
         enemy.TakeHit(Damage, direction * Mathf.Max(0f, KnockbackForce));
-        Finish();
     }
 }

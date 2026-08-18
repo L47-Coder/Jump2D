@@ -214,7 +214,7 @@ MonoBehaviour:
   CameraObj: {fileID: 519420028}
   CameraSpeed: 2
   MaxCameraSpeed: 5
-  DifficultyRampDuration: 90
+  SpawnAheadDistance: 10
   DefaultShakeDuration: 0.15
   DefaultShakeMagnitude: 0.15
 --- !u!114 &354557331
@@ -230,15 +230,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnemyConfigs:
-  - Prefab: {fileID: 7648483881525841815, guid: ac8ed5ede7198a14f81d6ffe72dc8112, type: 3}
-  - Prefab: {fileID: 2504517725312571520, guid: be54baeb0297d964292b36d58bb456b2, type: 3}
+  - {fileID: 7648483881525841815, guid: ac8ed5ede7198a14f81d6ffe72dc8112, type: 3}
+  - {fileID: 2504517725312571520, guid: be54baeb0297d964292b36d58bb456b2, type: 3}
   GenerateInterval: 1.4
   MinGenerateInterval: 0.55
-  DifficultyRampDuration: 90
   BatchSpacing: 1.35
   MinimumBatchCount: 2
   AdditionalBatchCountAtMaxDifficulty: 3
-  SpawnAheadDistance: 10
 --- !u!114 &354557332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,6 +249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b49bab7a5cad9a949b995ceff5363fc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DifficultyRampDuration: 90
 --- !u!114 &354557333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267,10 +266,8 @@ MonoBehaviour:
   SpawnY: 0
   MinInterval: 6
   MaxInterval: 12
-  DifficultyRampDuration: 90
   IntervalRandomMinMultiplier: 0.8
   IntervalRandomMaxMultiplier: 1.2
-  SpawnAheadDistance: 10
   CornSpawnChance: 0.5
 --- !u!1 &519420028
 GameObject:

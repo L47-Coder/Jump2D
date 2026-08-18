@@ -36,6 +36,17 @@ public abstract class ProjectileBase : MonoBehaviour
             Finish();
     }
 
+    protected void OnTriggerEnter2D(Collider2D other)
+    {
+        if (!EnemyTargetResolver.TryResolve(other, out var enemy))
+            return;
+
+        HandleEnemyHit(enemy);
+        Finish();
+    }
+
+    protected abstract void HandleEnemyHit(EnemyBase enemy);
+
     private void AnimateFlipbook()
     {
         if (FlipbookFrames == null || FlipbookFrames.Length == 0 || SpriteRenderer == null)

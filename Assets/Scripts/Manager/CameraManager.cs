@@ -9,11 +9,10 @@ public class CameraManager : MonoBehaviour
     public GameObject CameraObj;
     public float CameraSpeed;
     public float MaxCameraSpeed = 5f;
-    public float DifficultyRampDuration = 90f;
+    public float SpawnAheadDistance = 10f;
     public float DefaultShakeDuration = 0.15f;
     public float DefaultShakeMagnitude = 0.15f;
     private bool _isValid;
-    private float _elapsed = 0f;
     private float _baseSpeed;
     private Vector3 _basePosition;
     private Vector3 _shakeOffset = Vector3.zero;
@@ -48,7 +47,7 @@ public class CameraManager : MonoBehaviour
         _isValid = true;
     }
 
-    public bool TryGetPosition(out Vector3 position)
+    private bool TryGetPosition(out Vector3 position)
     {
         if (!_isValid || CameraObj == null)
         {
@@ -60,7 +59,7 @@ public class CameraManager : MonoBehaviour
         return true;
     }
 
-    public bool TryGetSpawnPosition(float aheadDistance, float y, out Vector3 position)
+    public bool TryGetSpawnPosition(float y, out Vector3 position)
     {
         if (!TryGetPosition(out var cameraPosition))
         {
@@ -68,7 +67,7 @@ public class CameraManager : MonoBehaviour
             return false;
         }
 
-        position = new Vector3(cameraPosition.x + aheadDistance, y, 0f);
+        position = new Vector3(cameraPosition.x + SpawnAheadDistance, y, 0f);
         return true;
     }
 
@@ -77,9 +76,10 @@ public class CameraManager : MonoBehaviour
         if (!_isValid)
             return;
 
-        _elapsed += Time.deltaTime;
-        float rampDuration = Mathf.Max(0.01f, DifficultyRampDuration);
-        float currentSpeed = Mathf.Lerp(_baseSpeed, MaxCameraSpeed, Mathf.Clamp01(_elapsed / rampDuration));
+        float difficultyT = GameManager.Instance != null
+            ? GameManager.Instance.DifficultyProgress
+            : 0f;
+        float currentSpeed = Mathf.Lerp(_baseSpeed, MaxCameraSpeed, difficultyT);
         _basePosition += currentSpeed * Time.deltaTime * Vector3.right;
         CameraObj.transform.position = _basePosition + _shakeOffset;
 

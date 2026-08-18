@@ -23,9 +23,7 @@ public abstract class GameManagerBinding : MonoBehaviour
     protected abstract void Subscribe(GameManager manager);
     protected abstract void Unsubscribe(GameManager manager);
 
-    protected virtual void OnManagerBound(GameManager manager)
-    {
-    }
+    protected abstract void OnManagerBound(GameManager manager);
 
     private void TryBindManager()
     {

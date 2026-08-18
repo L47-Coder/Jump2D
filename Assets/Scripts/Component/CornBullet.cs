@@ -12,10 +12,9 @@ public class CornBullet : ProjectileBase
     public float ExplosionShakeMagnitude = 0.04f;
     public CornExplosionSettings ExplosionSettings = new CornExplosionSettings();
 
-    private void OnTriggerEnter2D(Collider2D other)
+    protected override void HandleEnemyHit(EnemyBase enemy)
     {
-        if (EnemyTargetResolver.TryResolve(other, out _))
-            Explode();
+        Explode();
     }
 
     private void Explode()
@@ -40,6 +39,5 @@ public class CornBullet : ProjectileBase
 
             enemy.TakeHit(Damage, direction * Mathf.Max(0f, ExplosionKnockbackForce));
         }
-        Finish();
     }
 }
