@@ -45,9 +45,7 @@ public class PropsManager : MonoBehaviour
 
     private void ScheduleNext()
     {
-        float t = GameManager.Instance != null
-            ? GameManager.Instance.DifficultyProgress
-            : 0f;
+        float t = GameManager.GetDifficultyProgressOrDefault();
         float minInterval = Mathf.Max(0.1f, Mathf.Min(MinInterval, MaxInterval));
         float maxInterval = Mathf.Max(minInterval, Mathf.Max(MinInterval, MaxInterval));
         float interval = Mathf.Lerp(maxInterval, minInterval, t);

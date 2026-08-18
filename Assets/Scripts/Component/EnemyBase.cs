@@ -122,10 +122,7 @@ public abstract class EnemyBase : MonoBehaviour
         if (_dead)
             yield break;
 
-        _dead = true;
-        StopAllCoroutines();
-        DisableColliders();
-        Destroy(gameObject);
+        FinalizeDespawn(false);
     }
 
     private IEnumerator HitFlashRoutine()
@@ -141,13 +138,25 @@ public abstract class EnemyBase : MonoBehaviour
 
     private void Die()
     {
+        if (_dead)
+            return;
+
+        FinalizeDespawn(true);
+    }
+
+    private void FinalizeDespawn(bool spawnDeathEffects)
+    {
         _dead = true;
         StopAllCoroutines();
-        AudioManager.PlaySfx(SfxId.EnemyDeath);
-        SpawnDeathCorpse();
-        DisableColliders();
 
-        GameManager.Instance?.AddScore(ScoreValue);
+        if (spawnDeathEffects)
+        {
+            AudioManager.PlaySfx(SfxId.EnemyDeath);
+            SpawnDeathCorpse();
+            GameManager.Instance?.AddScore(ScoreValue);
+        }
+
+        DisableColliders();
         Destroy(gameObject);
     }
 
